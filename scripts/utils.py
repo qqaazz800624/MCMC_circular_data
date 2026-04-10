@@ -17,11 +17,11 @@ def plot_cdfs(sorted_scores, probabilities, tau,
     ax1.set_ylabel('Cumulative Probability')
     ax1.grid(True, alpha=0.3)
 
-    top_k = min(1000, N)
+    top_k = min(100, N)
     cdf_boltzmann = np.cumsum(probabilities[:top_k])
     ax2.plot(range(1, top_k + 1), cdf_boltzmann, color='crimson', linewidth=2)
     ax2.set_title(f'CDF of Boltzmann Prob. (Top {top_k}, $\\tau={tau}$)')
-    ax2.set_xlabel('Rank (1 to 1000, sorted by score)')
+    ax2.set_xlabel(f'Rank (1 to {top_k}, sorted by score)')
     ax2.set_ylabel('Cumulative Probability')
     ax2.grid(True, alpha=0.3)
 
