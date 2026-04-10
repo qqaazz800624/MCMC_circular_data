@@ -76,7 +76,4 @@ if __name__ == "__main__":
     print(f"Best objective value: {best_F:.4f}")
     print(f"Acceptance rate: {acceptance_rate:.4%}")
 
-
-
-
 #%%
