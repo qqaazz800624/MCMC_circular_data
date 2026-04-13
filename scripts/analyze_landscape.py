@@ -85,7 +85,7 @@ def analyze_landscape(n=9,
               save_path="distribution_cdfs.png")
 
 if __name__ == "__main__":
-    analyze_landscape(n=9, alpha=1.0, beta=5, tau=0.001, save_dir="results")
+    analyze_landscape(n=9, alpha=1.0, beta=5, tau=0.5, save_dir="results")
     print("\n--- Landscape Analysis Completed ---")
 
 #%%
