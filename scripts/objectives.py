@@ -20,7 +20,7 @@ def toy_objective_1(x, g=None, alpha=1.0, beta=0.05):
         indices = [(i + j) % n for j in range(5)]
         interaction_term += np.prod(x[indices])
         
-    return alpha * linear_term + beta * interaction_term
+    return alpha * linear_term + beta * interaction_term, linear_term, interaction_term
 
 
 #%%

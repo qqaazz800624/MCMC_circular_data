@@ -2,7 +2,7 @@
 
 import numpy as np
 
-np.arange(4.9, 4.1, -0.1)
+np.linspace(0.8, 0.6, num=9)
 
 #%%
 

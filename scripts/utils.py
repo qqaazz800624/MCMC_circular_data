@@ -29,4 +29,4 @@ def plot_cdfs(sorted_scores, probabilities, tau,
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     plt.savefig(os.path.join(save_dir, save_path), dpi=300)
-    #plt.show()
+    plt.show()

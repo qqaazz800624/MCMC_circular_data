@@ -10,27 +10,41 @@ import os
 from objectives import toy_objective_1
 from utils import plot_cdfs
 
-def analyze_landscape(n=9, alpha=1.0, beta=0.005, tau=5.0,
+def analyze_landscape(n=9, 
+                      g=np.arange(4.9, 4.1, -0.1),
+                      alpha=1.0, 
+                      beta=0.005, 
+                      tau=5.0,
                       save_dir="results"):
     
     print(f"--- Initiating Landscape Analysis ---")
-    print(f"Parameters: n={n}, alpha={alpha}, beta={beta}, tau={tau}")
+    print(f"Parameters: n={n}, g={g}, alpha={alpha}, beta={beta}, tau={tau}")
     
 
     print(f"\n1. Generating {n}! permutations...")
-    permutations = list(itertools.permutations(range(1, n + 1)))
+    elements = np.linspace(0.8, 0.6, num=n)
+    permutations = list(itertools.permutations(elements))
     N = len(permutations)
     print(f"Total permutations generated: {N}.")
 
-    g = np.arange(n, 0, -1)
     scores = np.zeros(N)
+    linear_terms = np.zeros(N)
+    product_terms = np.zeros(N)
     
     for i in tqdm(range(N), desc="Calculating F(x) scores"):
-        scores[i] = toy_objective_1(permutations[i], g=g, alpha=alpha, beta=beta)
+        scores[i], linear_terms[i], product_terms[i] = toy_objective_1(permutations[i], g=g, alpha=alpha, beta=beta)
 
     sorted_indices = np.argsort(scores)[::-1]
     sorted_scores = scores[sorted_indices]
     sorted_perms = [permutations[i] for i in sorted_indices]
+
+
+    weighted_linear = alpha * linear_terms
+    weighted_product = beta * product_terms
+
+    print(f"\n--- Objective Function Decomposition (Weighted) ---")
+    print(f"Linear Term (alpha={alpha}): Mean = {np.mean(weighted_linear):.4f}, Std = {np.std(weighted_linear):.4f}")
+    print(f"Product Term (beta={beta}): Mean = {np.mean(weighted_product):.4f}, Std = {np.std(weighted_product):.4f}")
 
     shifted_scores = sorted_scores - np.max(sorted_scores)
     exp_term = np.exp(shifted_scores / tau)
@@ -56,6 +70,8 @@ def analyze_landscape(n=9, alpha=1.0, beta=0.005, tau=5.0,
             "Rank": i + 1,
             "Permutation": str(sorted_perms[i]),
             "Score_F(x)": sorted_scores[i],
+            "Linear_Term": linear_terms[sorted_indices[i]],
+            "Product_Term": product_terms[sorted_indices[i]],
             "Probability": probabilities[i]
         })
         if i < 10: 
@@ -69,7 +85,7 @@ def analyze_landscape(n=9, alpha=1.0, beta=0.005, tau=5.0,
               save_path="distribution_cdfs.png")
 
 if __name__ == "__main__":
-    analyze_landscape(n=9, alpha=1.0, beta=0.005, tau=2.0, save_dir="results")
+    analyze_landscape(n=9, alpha=1.0, beta=5, tau=0.001, save_dir="results")
     print("\n--- Landscape Analysis Completed ---")
 
 #%%
