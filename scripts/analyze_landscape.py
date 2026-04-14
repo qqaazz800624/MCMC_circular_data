@@ -6,23 +6,33 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pandas as pd
 import os
-
+import argparse
 from objectives import toy_objective_1
 from utils import plot_cdfs
 
-def analyze_landscape(n=9, 
-                      g=np.arange(4.9, 4.1, -0.1),
-                      alpha=1.0, 
-                      beta=0.005, 
-                      tau=5.0,
-                      save_dir="results"):
-    
+def main():
+    parser = argparse.ArgumentParser(description="Analyze the landscape of the objective function over all permutations")   
+    parser.add_argument("--n", type=int, default=9, help="Number of elements in the permutation")
+    parser.add_argument("--g", type=float, nargs='+', default=[4.9, 4.8, 4.7, 4.6, 4.5, 4.4, 4.3, 4.2, 4.1], help="Values for g (should match n)")
+    parser.add_argument("--alpha", type=float, default=1.0, help="Weight for the linear term in the objective function")
+    parser.add_argument("--beta", type=float, default=10, help="Weight for the interaction term in the objective function")
+    parser.add_argument("--tau", type=float, default=5.0, help="Temperature parameter for Boltzmann distribution")
+    parser.add_argument("--save_dir", type=str, default="results", help="Directory to save results and plots")
+
+    args = parser.parse_args()
+    n = args.n
+    g = args.g
+    alpha = args.alpha
+    beta = args.beta
+    tau = args.tau
+    save_dir = args.save_dir
+
     print(f"--- Initiating Landscape Analysis ---")
     print(f"Parameters: n={n}, g={g}, alpha={alpha}, beta={beta}, tau={tau}")
     
 
     print(f"\n1. Generating {n}! permutations...")
-    elements = np.linspace(0.8, 0.6, num=n)
+    elements = np.linspace(0.8, 0.6, num=n).tolist()
     permutations = list(itertools.permutations(elements))
     N = len(permutations)
     print(f"Total permutations generated: {N}.")
@@ -85,7 +95,7 @@ def analyze_landscape(n=9,
               save_path="distribution_cdfs.png")
 
 if __name__ == "__main__":
-    analyze_landscape(n=9, alpha=1.0, beta=5, tau=0.5, save_dir="results")
+    main()
     print("\n--- Landscape Analysis Completed ---")
 
 #%%
