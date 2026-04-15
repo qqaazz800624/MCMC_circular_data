@@ -30,3 +30,28 @@ def plot_cdfs(sorted_scores, probabilities, tau,
         os.makedirs(save_dir)
     plt.savefig(os.path.join(save_dir, save_path), dpi=300)
     #plt.show()
+
+def generate_initial_states(elements, num_states=10000, seed=42):
+    """
+    Pre-generates a fixed set of initial states to ensure an identical starting point (fair baseline) for all methods.
+    
+    Parameters:
+    -----------
+    elements : list or np.ndarray
+        The base elements (building blocks) to be permuted.
+    num_states : int
+        The number of initial states to generate.
+    seed : int
+        The random seed for reproducibility.
+    """
+    np.random.seed(seed)
+    
+    elements = np.asarray(elements) 
+    initial_states = []
+    
+    for _ in range(num_states):
+        state = elements.copy()
+        np.random.shuffle(state)
+        initial_states.append(state)
+        
+    return initial_states
