@@ -2,3 +2,4 @@ numpy==1.26.4
 matplotlib==3.10.1
 tqdm==4.67.1
 pandas==2.2.3
+ipython==9.0.1
