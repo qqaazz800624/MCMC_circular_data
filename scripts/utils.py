@@ -58,13 +58,13 @@ def generate_initial_states(elements, num_states=10000, seed=42):
 
 
 def run_single_mcmc_chain(initial_x, 
-                              objective_func, 
-                              proposal_func, 
-                              g, 
-                              alpha, 
-                              beta, tau, 
-                              true_max_F, 
-                              max_steps=50000):
+                          objective_func, 
+                          proposal_func, 
+                          g, 
+                          alpha, 
+                          beta, tau, 
+                          true_max_F, 
+                          max_steps=50000):
     """
     Run a single MCMC chain starting from initial_x, 
     using the provided objective function and proposal function.
