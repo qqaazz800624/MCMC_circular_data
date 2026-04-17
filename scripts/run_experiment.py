@@ -14,6 +14,7 @@ def main():
     parser.add_argument("--num_experiments", type=int, default=10000, help="Number of random initials")
     parser.add_argument("--max_steps", type=int, default=50000, help="Max steps before giving up")
     parser.add_argument("--n", type=int, default=9, help="Number of elements")
+    parser.add_argument("--g", type=float, nargs='+', default=[4.9, 4.8, 4.7, 4.6, 4.5, 4.4, 4.3, 4.2, 4.1], help="Values for g (should match n)")
     parser.add_argument("--objective", type=str, default="toy_objective_1")
     parser.add_argument("--proposal", type=str, default="random_swap_proposal")
     parser.add_argument("--alpha", type=float, default=1.0)
@@ -29,7 +30,7 @@ def main():
 
     print(f"Generating {args.num_experiments} fair initial states...")
     initial_states = generate_initial_states(num_states=args.num_experiments, n=args.n, seed=args.seed)
-    g = np.linspace(4.9, 4.1, num=args.n) 
+    g = np.array(args.g)
 
     hitting_times = []
     failed_count = 0
