@@ -4,6 +4,6 @@ srun --nodes=1 \
      --partition=defq  \
      --gres=gpu:pro6000:1 \
      --cpu-bind=none \
-     --time=06:00:00 \
+     --time=24:00:00 \
      --container-image='/data/container-images/enroot/nvidia+pytorch+25.03-py3.sqsh' \
      --container-mount-home --pty /bin/bash -l
