@@ -1,6 +1,7 @@
 #%%
 
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 import argparse
 import objectives
@@ -35,11 +36,12 @@ def main():
     g = np.array(args.g)
 
     hitting_times = []
+    chain_details = []
     failed_count = 0
 
     print(f"\n--- Starting Experiment: {args.proposal} ---")
     for i in tqdm(range(args.num_experiments), desc="Simulating Chains"):
-        h_time = run_single_mcmc_chain(
+        final_x, final_F, h_time = run_single_mcmc_chain(
             initial_states[i], objective_func, proposal_func, g, 
             args.alpha, args.beta, args.tau, args.true_max_F, args.max_steps
         )
@@ -47,6 +49,14 @@ def main():
         hitting_times.append(h_time)
         if h_time == args.max_steps:
             failed_count += 1
+
+        chain_details.append({
+            "chain_id": i + 1,
+            "hitting_time": h_time,
+            "final_F": final_F,
+            "final_x": str(final_x.tolist()), # 轉成乾淨的 string 格式
+            "success": h_time < args.max_steps
+        })
 
     hitting_times = np.array(hitting_times)
     mean_hitting_time = np.mean(hitting_times)
@@ -82,8 +92,9 @@ def main():
     with open(summary_filename, 'w') as f:
         json.dump(summary_results, f, indent=4)
 
-    hitting_times_filename = os.path.join(args.save_dir, f"hitting_times_{args.proposal}_tau{args.tau}.csv")
-    np.savetxt(hitting_times_filename, hitting_times, delimiter=",", header="hitting_time", comments="")
+    df_details = pd.DataFrame(chain_details)
+    csv_filename = os.path.join(args.save_dir, f"chain_details_{args.proposal}_tau{args.tau}.csv")
+    df_details.to_csv(csv_filename, index=False)
 
     print(f"✅ Results successfully saved to the '{args.save_dir}' directory.")
 
