@@ -57,6 +57,8 @@ def generate_initial_states(elements, num_states=10000, seed=42):
     return initial_states
 
 
+import numpy as np
+
 def run_single_mcmc_chain(initial_x, 
                           objective_func, 
                           proposal_func, 
@@ -66,14 +68,14 @@ def run_single_mcmc_chain(initial_x,
                           true_max_F, 
                           max_steps=50000):
     """
-    Run a single MCMC chain starting from initial_x, 
-    using the provided objective function and proposal function.
+    Run a single MCMC chain starting from initial_x.
+    Returns: (final_x, final_F, hitting_time)
     """
     current_x = initial_x.copy()
     current_F = objective_func(current_x, g, alpha, beta)[0]
 
-    if current_F >= true_max_F - 1e-6: 
-        return 0 
+    if current_F >= true_max_F - 1e-4: 
+        return current_x, current_F, 0 
 
     for t in range(1, max_steps + 1):
         proposed_x = proposal_func(current_x)
@@ -89,7 +91,7 @@ def run_single_mcmc_chain(initial_x,
             current_x = proposed_x
             current_F = proposed_F
 
-        if current_F >= true_max_F - 1e-6:
-            return t 
+        if current_F >= true_max_F - 1e-4:
+            return current_x, current_F, t 
 
-    return max_steps
+    return current_x, current_F, max_steps
