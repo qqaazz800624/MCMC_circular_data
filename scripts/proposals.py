@@ -78,6 +78,66 @@ def block_pair_exchange_proposal(x):
     
     return x_prime
 
+def hybrid_swap_insertion_proposal(x):
+    if np.random.rand() < 0.5:
+        return random_swap_proposal(x)
+    else:
+        return random_insertion_proposal(x)
+
+def hybrid_swap_reversal_proposal(x):
+    if np.random.rand() < 0.5:
+        return random_swap_proposal(x)
+    else:
+        return directional_reversal_proposal(x)
+
+def hybrid_swap_kcycle_proposal(x, k=None):
+    if np.random.rand() < 0.5:
+        return random_swap_proposal(x)
+    else:
+        return k_cycle_shift_proposal(x, k)
+
+def hybrid_swap_block_exchange_proposal(x):
+    if np.random.rand() < 0.5:
+        return random_swap_proposal(x)
+    else:
+        return block_pair_exchange_proposal(x)
+
+def hybrid_insertion_reversal_proposal(x):
+    if np.random.rand() < 0.5:
+        return random_insertion_proposal(x)
+    else:
+        return directional_reversal_proposal(x)
+
+def hybrid_insertion_kcycle_proposal(x, k=None):
+    if np.random.rand() < 0.5:
+        return random_insertion_proposal(x)
+    else:
+        return k_cycle_shift_proposal(x, k)
+
+def hybrid_insertion_block_exchange_proposal(x):
+    if np.random.rand() < 0.5:
+        return random_insertion_proposal(x)
+    else:
+        return block_pair_exchange_proposal(x)
+
+def hybrid_reversal_kcycle_proposal(x, k=None):
+    if np.random.rand() < 0.5:
+        return directional_reversal_proposal(x)
+    else:
+        return k_cycle_shift_proposal(x, k)
+
+def hybrid_reversal_block_exchange_proposal(x):
+    if np.random.rand() < 0.5:
+        return directional_reversal_proposal(x)
+    else:
+        return block_pair_exchange_proposal(x)
+
+def hybrid_kcycle_block_exchange_proposal(x, k=None):
+    if np.random.rand() < 0.5:
+        return k_cycle_shift_proposal(x, k)
+    else:
+        return block_pair_exchange_proposal(x)
+
 #%%
 
 
