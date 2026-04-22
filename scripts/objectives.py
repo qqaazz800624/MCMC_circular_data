@@ -11,7 +11,8 @@ def toy_objective_1(x, g=None, alpha=1.0, beta=0.05):
     else:
         g = np.asarray(g)
         if len(g) != n:
-            raise ValueError(f"The length of weight array g ({len(g)}) must match the length of input array x ({n}).")
+            raise ValueError(f"The length of weight array g ({len(g)}) "
+                             f"must match the length of input array x ({n}).")
 
     linear_term = np.sum(g * x)
     
