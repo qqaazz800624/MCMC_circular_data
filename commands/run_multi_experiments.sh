@@ -1,0 +1,41 @@
+#!/bin/bash
+
+PROPOSALS=(
+    "hybrid_swap_reversal_proposal"
+    "hybrid_swap_kcycle_proposal"
+    "hybrid_swap_block_exchange_proposal"
+    "hybrid_insertion_reversal_proposal"
+    "hybrid_insertion_kcycle_proposal"
+    "hybrid_insertion_block_exchange_proposal"
+    "hybrid_reversal_kcycle_proposal"
+    "hybrid_reversal_block_exchange_proposal"
+    "hybrid_kcycle_block_exchange_proposal"
+)
+
+echo "Starting batch experiments for ${#PROPOSALS[@]} hybrid proposals..."
+
+for PROPOSAL in "${PROPOSALS[@]}"
+do
+    echo "============================================================"
+    echo "Currently Running: $PROPOSAL"
+    echo "============================================================"
+    
+    python run_experiment.py \
+        --num_experiments 10000 \
+        --max_steps 50000 \
+        --n 9 \
+        --g 4.9 4.8 4.7 4.6 4.5 4.4 4.3 4.2 4.1 \
+        --x 0.8 0.775 0.75 0.725 0.7 0.675 0.65 0.625 0.6 \
+        --objective "toy_objective_1" \
+        --proposal "$PROPOSAL" \
+        --alpha 1.0 \
+        --beta 10 \
+        --tau 5 \
+        --true_max_F 4.7051 \
+        --save_dir "results"
+        
+    echo "Finished: $PROPOSAL"
+    echo ""
+done
+
+echo "All experiments completed successfully!"
