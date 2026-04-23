@@ -20,7 +20,7 @@ do
     echo "Currently Running: $PROPOSAL"
     echo "============================================================"
     
-    python run_experiment.py \
+    python scripts/run_experiment.py \
         --num_experiments 10000 \
         --max_steps 50000 \
         --n 9 \
