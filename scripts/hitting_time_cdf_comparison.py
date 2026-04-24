@@ -2,19 +2,29 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import argparse
 
-def plot_all_ecdfs(data_dir="/home/qqaazz800624/MCMC_circular_data/results",
-                   save_dir="results", 
-                   tau=5.0):
+def plot_all_ecdfs():
 
-    proposals = [
+    parser = argparse.ArgumentParser(description="Plot ECDFs of hitting times for different MCMC proposals")
+    parser.add_argument("--data_dir", type=str, default="/home/qqaazz800624/MCMC_circular_data/results", help="Directory containing the CSV files with hitting time data")
+    parser.add_argument("--save_dir", type=str, default="results", help="Directory to save the ECDF plots")
+    parser.add_argument("--tau", type=float, default=5.0, help="Value of tau for the ECDF plots")
+    parser.add_argument("--proposals", type=str, nargs='+', default=[
         "random_swap_proposal",
         "random_insertion_proposal",
         "directional_reversal_proposal",
         "k_cycle_shift_proposal",
         "block_pair_exchange_proposal"
-    ]
-    
+    ], help="List of proposal methods to include in the ECDF comparison")
+
+    args = parser.parse_args()
+    data_dir = args.data_dir
+    save_dir = args.save_dir
+    tau = args.tau
+    proposals = args.proposals
+    baseline_proposal = proposals[0]
+
     plt.figure(figsize=(12, 8))
     colors = ['#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4']
 
@@ -46,11 +56,11 @@ def plot_all_ecdfs(data_dir="/home/qqaazz800624/MCMC_circular_data/results",
     
     plt.tight_layout()
     
-    save_path = os.path.join(save_dir, f'ecdf_comparison_tau{tau}.png')
+    save_path = os.path.join(save_dir, f'ecdf_{baseline_proposal}_comparison.png')
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     print(f"Comparison plot saved to: {save_path}")
     
     plt.show()
 
 if __name__ == "__main__":
-    plot_all_ecdfs(save_dir="results", tau=5.0)
+    plot_all_ecdfs()
