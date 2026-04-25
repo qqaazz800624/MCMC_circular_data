@@ -1,15 +1,10 @@
 #!/bin/bash
 
 PROPOSALS=(
-    "hybrid_swap_reversal_proposal"
-    "hybrid_swap_kcycle_proposal"
-    "hybrid_swap_block_exchange_proposal"
-    "hybrid_insertion_reversal_proposal"
-    "hybrid_insertion_kcycle_proposal"
-    "hybrid_insertion_block_exchange_proposal"
-    "hybrid_reversal_kcycle_proposal"
-    "hybrid_reversal_block_exchange_proposal"
-    "hybrid_kcycle_block_exchange_proposal"
+    "random_insertion_proposal"
+    "directional_reversal_proposal"
+    "k_cycle_shift_proposal"
+    "block_pair_exchange_proposal"
 )
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} hybrid proposals..."
@@ -29,9 +24,9 @@ do
         --objective "toy_objective_1" \
         --proposal "$PROPOSAL" \
         --alpha 1.0 \
-        --beta 10 \
+        --beta 100 \
         --tau 5 \
-        --true_max_F 4.7051 \
+        --true_max_F 8.55078 \
         --save_dir "results"
         
     echo "Finished: $PROPOSAL"
