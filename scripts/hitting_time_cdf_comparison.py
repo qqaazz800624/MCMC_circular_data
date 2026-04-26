@@ -10,6 +10,7 @@ def plot_all_ecdfs():
     parser.add_argument("--data_dir", type=str, default="/home/qqaazz800624/MCMC_circular_data/results", help="Directory containing the CSV files with hitting time data")
     parser.add_argument("--save_dir", type=str, default="results", help="Directory to save the ECDF plots")
     parser.add_argument("--tau", type=float, default=5.0, help="Value of tau for the ECDF plots")
+    parser.add_argument("--baseline_proposal", type=str, default="random_swap_proposal", help="Baseline proposal method for comparison")
     parser.add_argument("--proposals", type=str, nargs='+', default=[
         "random_swap_proposal",
         "random_insertion_proposal",
@@ -23,7 +24,7 @@ def plot_all_ecdfs():
     save_dir = args.save_dir
     tau = args.tau
     proposals = args.proposals
-    baseline_proposal = proposals[0]
+    baseline_proposal = args.baseline_proposal
 
     plt.figure(figsize=(12, 8))
     colors = ['#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4']

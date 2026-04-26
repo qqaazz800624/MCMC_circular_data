@@ -1,10 +1,16 @@
 #!/bin/bash
 
 PROPOSALS=(
-    "random_insertion_proposal"
-    "directional_reversal_proposal"
-    "k_cycle_shift_proposal"
-    "block_pair_exchange_proposal"
+    "hybrid_swap_insertion_proposal"
+    "hybrid_swap_reversal_proposal"
+    "hybrid_swap_kcycle_proposal"
+    "hybrid_swap_block_exchange_proposal"
+    "hybrid_insertion_reversal_proposal"
+    "hybrid_insertion_kcycle_proposal"
+    "hybrid_insertion_block_exchange_proposal"
+    "hybrid_reversal_kcycle_proposal"
+    "hybrid_reversal_block_exchange_proposal"
+    "hybrid_kcycle_block_exchange_proposal"
 )
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} hybrid proposals..."
