@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import objectives
 
 def plot_cdfs(sorted_scores, probabilities, tau, 
               save_dir="results",
@@ -95,3 +96,36 @@ def run_single_mcmc_chain(initial_x,
             return current_x, current_F, t 
 
     return current_x, current_F, max_steps
+
+
+def run_baseball_mcmc(initial_x, 
+                      proposal_func, 
+                      num_sims_per_step, 
+                      max_steps, 
+                      tau):
+    current_x = initial_x.copy()
+    current_F = objectives.objective_baseball_sim(current_x, prob_matrix, num_simulations=num_sims_per_step)
+    
+    best_x = current_x.copy()
+    best_F = current_F
+    
+    for t in tqdm(range(max_steps), desc="MCMC Optimizing"):
+        proposed_x = proposal_func(current_x)
+        proposed_F = objectives.objective_baseball_sim(proposed_x, prob_matrix, num_simulations=num_sims_per_step)
+        
+        delta_F = proposed_F - current_F
+        
+        if delta_F > 0:
+            acceptance_prob = 1.0
+        else:
+            acceptance_prob = np.exp(delta_F / tau)
+            
+        if np.random.rand() <= acceptance_prob:
+            current_x = proposed_x
+            current_F = proposed_F
+            
+            if current_F > best_F:
+                best_F = current_F
+                best_x = current_x.copy()
+                
+    return best_x, best_F
