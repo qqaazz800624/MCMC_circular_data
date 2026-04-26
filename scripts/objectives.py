@@ -26,6 +26,50 @@ def toy_objective_1(x, g=None, alpha=1.0, beta=0.05):
     return out, linear_term, interaction_term
 
 
-#%%
+def simulate_game(lineup_indices, prob_matrix, innings=9):
+    
+    total_runs = 0
+    current_batter_idx = 0
+    event_types = ['OUT', 'BB', '1B', '2B', '3B', 'HR']
+    
+    lineup_probs = prob_matrix[lineup_indices]
+    
+    for _ in range(innings):
+        outs = 0
+        bases = np.array([0, 0, 0]) 
+        
+        while outs < 3:
+            probs = lineup_probs[current_batter_idx]
+            result = np.random.choice(event_types, p=probs)
+            
+            if result == 'OUT':
+                outs += 1
+            elif result == 'HR':
+                total_runs += np.sum(bases) + 1
+                bases = np.array([0, 0, 0])
+            elif result == '3B':
+                total_runs += np.sum(bases)
+                bases = np.array([0, 0, 1])
+            elif result == '2B':
+                total_runs += bases[1] + bases[2]
+                bases = np.array([0, 1, bases[0]])
+            elif result == '1B':
+                total_runs += bases[2]
+                bases = np.array([1, bases[0], bases[1]])
+            elif result == 'BB':
+                if bases[0] == 1 and bases[1] == 1 and bases[2] == 1:
+                    total_runs += 1
+                elif bases[0] == 1 and bases[1] == 1:
+                    bases = np.array([1, 1, 1])
+                elif bases[0] == 1:
+                    bases = np.array([1, 1, bases[2]])
+                else:
+                    bases = np.array([1, bases[1], bases[2]])
+            
+            current_batter_idx = (current_batter_idx + 1) % 9
+            
+    return total_runs
 
-
+def objective_baseball_sim(x_indices, prob_matrix, num_simulations=1000):
+    runs = sum(simulate_game(x_indices, prob_matrix) for _ in range(num_simulations))
+    return runs / num_simulations
