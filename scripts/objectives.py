@@ -34,7 +34,7 @@ class BaseballSimulator:
         self.prob_matrix = np.array([[p[event] for event in self.event_types] for p in player_profiles])
         self.name_dict = {p['id']: p['name'] for p in player_profiles}
 
-    def _simulate_single_game(self, lineup_indices, innings=9):
+    def _simulate_single_game(self, lineup_indices, rng, innings=9):
         total_runs = 0
         current_batter_idx = 0
         lineup_probs = self.prob_matrix[lineup_indices]
@@ -45,7 +45,8 @@ class BaseballSimulator:
             
             while outs < 3:
                 probs = lineup_probs[current_batter_idx]
-                result = np.random.choice(self.event_types, p=probs)
+                
+                result = rng.choice(self.event_types, p=probs)
                 
                 if result == 'OUT':
                     outs += 1
@@ -57,10 +58,26 @@ class BaseballSimulator:
                     bases = np.array([0, 0, 1])
                 elif result == '2B':
                     total_runs += bases[1] + bases[2]
-                    bases = np.array([0, 1, bases[0]])
+                    if bases[0] == 1:
+                        # 假設一壘跑者有 40% 機率在二壘安打時直闖本壘得分
+                        if rng.random() < 0.4:
+                            total_runs += 1
+                            bases = np.array([0, 1, 0])
+                        else:
+                            bases = np.array([0, 1, 1]) # 停在三壘
+                    else:
+                        bases = np.array([0, 1, 0])
                 elif result == '1B':
                     total_runs += bases[2]
-                    bases = np.array([1, bases[0], bases[1]])
+                    
+                    if bases[1] == 1:
+                        if rng.random() < 0.6:
+                            total_runs += 1           
+                            bases = np.array([1, bases[0], 0]) 
+                        else:
+                            bases = np.array([1, bases[0], 1]) 
+                    else:
+                        bases = np.array([1, bases[0], 0])
                 elif result == 'BB':
                     if bases[0] == 1 and bases[1] == 1 and bases[2] == 1:
                         total_runs += 1
@@ -75,7 +92,8 @@ class BaseballSimulator:
                 
         return total_runs
 
-    def evaluate_lineup(self, lineup_indices, num_simulations=1000):
-        runs = sum(self._simulate_single_game(lineup_indices) for _ in range(num_simulations))
+    def evaluate_lineup(self, lineup_indices, num_simulations=1000, seed=42):
+        rng = np.random.default_rng(seed)
+        runs = sum(self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations))
+        
         return runs / num_simulations
-
