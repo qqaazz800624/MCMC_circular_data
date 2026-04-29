@@ -33,6 +33,8 @@ class BaseballSimulator:
         
         self.prob_matrix = np.array([[p[event] for event in self.event_types] for p in player_profiles])
         self.name_dict = {p['id']: p['name'] for p in player_profiles}
+        self.prob_1b_to_home_on_double = 0.40  
+        self.prob_2b_to_home_on_single = 0.60
 
     def _simulate_single_game(self, lineup_indices, rng, innings=9):
         total_runs = 0
@@ -59,19 +61,18 @@ class BaseballSimulator:
                 elif result == '2B':
                     total_runs += bases[1] + bases[2]
                     if bases[0] == 1:
-                        # 假設一壘跑者有 40% 機率在二壘安打時直闖本壘得分
-                        if rng.random() < 0.4:
+                        if rng.random() < self.prob_1b_to_home_on_double:
                             total_runs += 1
                             bases = np.array([0, 1, 0])
                         else:
-                            bases = np.array([0, 1, 1]) # 停在三壘
+                            bases = np.array([0, 1, 1]) 
                     else:
                         bases = np.array([0, 1, 0])
                 elif result == '1B':
                     total_runs += bases[2]
                     
                     if bases[1] == 1:
-                        if rng.random() < 0.6:
+                        if rng.random() < self.prob_2b_to_home_on_single:
                             total_runs += 1           
                             bases = np.array([1, bases[0], 0]) 
                         else:
