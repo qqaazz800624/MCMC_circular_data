@@ -8,6 +8,7 @@ import os
 from optimizer import MCMCOptimizer
 from tqdm import tqdm
 from objectives import BaseballSimulator
+from utils import generate_initial_states
 
 def main():
     parser = argparse.ArgumentParser(description="Run MCMC Baseball Lineup Optimization")
