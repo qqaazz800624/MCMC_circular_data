@@ -5,8 +5,7 @@ import argparse
 import json
 import os
 
-from utils import (generate_initial_states,
-                   run_baseball_mcmc)
+from optimizer import MCMCOptimizer
 from tqdm import tqdm
 from objectives import BaseballSimulator
 
@@ -49,14 +48,13 @@ def main():
     start_time = time.time()
     
     for i in tqdm(range(args.num_initials), desc="Running MCMC Chains"):
-        result = run_baseball_mcmc(
+        optimizer = MCMCOptimizer(simulator, 
+                                  num_sims_per_step=args.num_sims_per_step, 
+                                  tau=args.tau)
+        result = optimizer.optimize(
             initial_x=initial_states[i],
             proposal_func=proposal_func,  
-            simulator=simulator,
-            score_cache=global_score_cache,
-            num_sims_per_step=args.num_sims_per_step, 
-            max_steps=args.max_steps,         
-            tau=args.tau              
+            max_steps=args.max_steps         
         )
         
         total_steps_explored_all_chains += result['total_steps']
