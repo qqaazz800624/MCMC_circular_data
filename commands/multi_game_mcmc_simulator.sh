@@ -1,12 +1,13 @@
 #!/bin/bash
 
 PROPOSALS=(
-    "random_swap_proposal"
-    "random_insertion_proposal"
     "directional_reversal_proposal"
     "k_cycle_shift_proposal"
     "block_pair_exchange_proposal"
 )
+
+export team="LAD"
+export year="2024"
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} proposals..."
 
@@ -22,7 +23,7 @@ do
     --proposal "$PROPOSAL" \
     --tau 5 \
     --data_dir "results" \
-    --lineup_filename "player_profiles_LAD_2024.json"
+    --lineup_filename "player_profiles_${team}_${year}.json"
     echo "Finished: $PROPOSAL"
     echo ""
 done
