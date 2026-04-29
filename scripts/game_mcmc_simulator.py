@@ -50,7 +50,8 @@ def main():
 
     start_time = time.time()
     
-    for i in tqdm(range(args.num_initials), desc="Running MCMC Chains"):
+    #for i in tqdm(range(args.num_initials), desc="Running MCMC Chains"):
+    for i in range(args.num_initials):
         result = optimizer.optimize(
             initial_x=initial_states[i],
             proposal_func=proposal_func,  
