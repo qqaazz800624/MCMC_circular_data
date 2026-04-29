@@ -34,7 +34,9 @@ def main():
         player_profiles = json.load(f)
 
     simulator = BaseballSimulator(player_profiles)
-    global_score_cache = {}
+    optimizer = MCMCOptimizer(simulator, 
+                                  num_sims_per_step=args.num_sims_per_step, 
+                                  tau=args.tau)
 
     print("=" * 50)
     print(f"MCMC Simulation Starting ({args.num_initials} chains)...")
@@ -49,9 +51,6 @@ def main():
     start_time = time.time()
     
     for i in tqdm(range(args.num_initials), desc="Running MCMC Chains"):
-        optimizer = MCMCOptimizer(simulator, 
-                                  num_sims_per_step=args.num_sims_per_step, 
-                                  tau=args.tau)
         result = optimizer.optimize(
             initial_x=initial_states[i],
             proposal_func=proposal_func,  
@@ -69,8 +68,9 @@ def main():
     end_time = time.time()
     execution_time = end_time - start_time
 
+    unique_lineups_simulated = len(optimizer.score_cache)
     total_evaluations = (args.num_initials * 1) + total_steps_explored_all_chains
-    cache_hits = total_evaluations - len(global_score_cache)
+    cache_hits = total_evaluations - unique_lineups_simulated
     cache_ratio = cache_hits / total_evaluations if total_evaluations > 0 else 0
     best_names = [simulator.name_dict[idx] for idx in overall_best_lineup]
 
@@ -79,7 +79,7 @@ def main():
     print("-" * 50)
     print("Cache Hits and Performance Data:")
     print(f"   - Total states generated: {total_evaluations}")
-    print(f"   - Unique lineups simulated: {len(global_score_cache)}")
+    print(f"   - Unique lineups simulated: {unique_lineups_simulated}")
     print(f"   - Cache hits (simulations saved): {cache_hits}")
     print(f"   - Cache hit ratio: {cache_ratio:.1%}")
     print("-" * 50)
@@ -100,7 +100,7 @@ def main():
         "performance": {
             "execution_time_seconds": round(execution_time, 2),
             "total_evaluations": total_evaluations,
-            "unique_lineups_simulated": len(global_score_cache),
+            "unique_lineups_simulated": unique_lineups_simulated,
             "cache_hits": cache_hits,
             "cache_hit_ratio": round(cache_ratio, 4)
         },
