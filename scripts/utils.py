@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import objectives
+from tqdm import tqdm
 
 def plot_cdfs(sorted_scores, probabilities, tau, 
               save_dir="results",
@@ -98,27 +99,33 @@ def run_single_mcmc_chain(initial_x,
     return current_x, current_F, max_steps
 
 
-def run_baseball_mcmc(initial_x, 
-                      proposal_func, 
-                      num_sims_per_step, 
-                      max_steps, 
-                      tau):
+def get_cached_score(lineup, simulator, score_cache, num_sims):
+    lineup_tuple = tuple(lineup)
+    if lineup_tuple in score_cache:
+        return score_cache[lineup_tuple]
+    score = simulator.evaluate_lineup(list(lineup), num_simulations=num_sims)
+    score_cache[lineup_tuple] = score
+    return score
+
+def run_baseball_mcmc(initial_x, proposal_func, simulator, score_cache, 
+                      num_sims_per_step=1000, max_steps=5000, tau=5):
     current_x = initial_x.copy()
-    current_F = objectives.objective_baseball_sim(current_x, prob_matrix, num_simulations=num_sims_per_step)
+    current_F = get_cached_score(current_x, simulator, score_cache, num_sims_per_step)
     
     best_x = current_x.copy()
     best_F = current_F
+    step_when_best_found = 0
     
-    for t in tqdm(range(max_steps), desc="MCMC Optimizing"):
+    for t in tqdm(range(max_steps), desc="Running MCMC Steps"):
         proposed_x = proposal_func(current_x)
-        proposed_F = objectives.objective_baseball_sim(proposed_x, prob_matrix, num_simulations=num_sims_per_step)
+        proposed_F = get_cached_score(proposed_x, simulator, score_cache, num_sims_per_step)
         
         delta_F = proposed_F - current_F
         
         if delta_F > 0:
             acceptance_prob = 1.0
         else:
-            acceptance_prob = np.exp(delta_F / tau)
+            acceptance_prob = np.exp(max(delta_F / tau, -700))
             
         if np.random.rand() <= acceptance_prob:
             current_x = proposed_x
@@ -127,5 +134,12 @@ def run_baseball_mcmc(initial_x,
             if current_F > best_F:
                 best_F = current_F
                 best_x = current_x.copy()
+                step_when_best_found = t
                 
-    return best_x, best_F
+    return {
+        "initial_state": initial_x,
+        "best_lineup": best_x,
+        "best_score": best_F,
+        "steps_to_best": step_when_best_found,
+        "total_steps": max_steps
+    }
