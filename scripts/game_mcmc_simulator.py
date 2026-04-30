@@ -33,10 +33,28 @@ def main():
     with open(lineup_path, "r") as f:
         player_profiles = json.load(f)
 
+    team_name = args.lineup_filename.replace("player_profiles_", "").replace(".json", "")
+    global_cache_path = os.path.join(args.data_dir, f"global_cache_{team_name}.json")
+
+    global_cache = {}
+    if os.path.exists(global_cache_path):
+        print(f"Found existing global cache at {global_cache_path}. Loading...")
+        with open(global_cache_path, "r", encoding="utf-8") as f:
+            raw_cache = json.load(f)
+            for k, v in raw_cache.items():
+                tuple_key = tuple(map(int, k.split(',')))
+                global_cache[tuple_key] = v
+        print(f"Loaded {len(global_cache)} previously simulated lineups!")
+    else:
+        print("No existing global cache found. Starting fresh.")
+
+    initial_cache_size = len(global_cache)
+
     simulator = BaseballSimulator(player_profiles)
     optimizer = MCMCOptimizer(simulator, 
-                                  num_sims_per_step=args.num_sims_per_step, 
-                                  tau=args.tau)
+                              num_sims_per_step=args.num_sims_per_step, 
+                              tau=args.tau,
+                              initial_cache=global_cache)
 
     print("=" * 50)
     print(f"MCMC Simulation Starting ({args.num_initials} chains)...")
@@ -47,6 +65,8 @@ def main():
     overall_best_chain_idx = -1
     overall_best_step = -1
     total_steps_explored_all_chains = 0
+
+    all_visited_states_this_run = set()
 
     start_time = time.time()
     
@@ -59,6 +79,7 @@ def main():
         )
         
         total_steps_explored_all_chains += result['total_steps']
+        all_visited_states_this_run.update(result['visited_states'])
         
         if result['best_score'] > overall_best_score:
             overall_best_score = result['best_score']
@@ -69,26 +90,39 @@ def main():
     end_time = time.time()
     execution_time = end_time - start_time
 
-    unique_lineups_simulated = len(optimizer.score_cache)
+    # statistics to record
+    final_cache_size = len(optimizer.score_cache)
+    new_simulations_this_run = final_cache_size - initial_cache_size
+    unique_combinations_explored = len(all_visited_states_this_run)
+
     total_evaluations = (args.num_initials * 1) + total_steps_explored_all_chains
-    cache_hits = total_evaluations - unique_lineups_simulated
+    cache_hits = total_evaluations - new_simulations_this_run
     cache_ratio = cache_hits / total_evaluations if total_evaluations > 0 else 0
     best_names = [simulator.name_dict[idx] for idx in overall_best_lineup]
 
+    # print results
     print(f"\nTest Successfully Completed!")
     print(f"Total time: {execution_time:.2f} seconds")
     print("-" * 50)
     print("Cache Hits and Performance Data:")
-    print(f"   - Total states generated: {total_evaluations}")
-    print(f"   - Unique lineups simulated: {unique_lineups_simulated}")
-    print(f"   - Cache hits (simulations saved): {cache_hits}")
-    print(f"   - Cache hit ratio: {cache_ratio:.1%}")
+    print(f"   - Total steps evaluated this run: {total_evaluations}")
+    print(f"   - Unique combinations explored (The 'Exploration Power'): {unique_combinations_explored}")
+    print(f"   - New lineups actually simulated (Simulator called): {new_simulations_this_run}")
+    print(f"   - Cache hits (avoided simulations): {cache_hits}")
+    print(f"   - Effective Cache hit ratio: {cache_ratio:.1%}")
+    print(f"   - Total Global Cache size now: {final_cache_size} / 362880")
     print("-" * 50)
     print(f"Best lineup found overall: {overall_best_lineup}")
     print(f"Best expected score: {overall_best_score:.3f}")
     print(f"Found in Chain #{overall_best_chain_idx} at step {overall_best_step}")
     print("=" * 50)
 
+    print(f"Saving updated global cache to {global_cache_path}...")
+    save_cache = {','.join(map(str, k)): v for k, v in optimizer.score_cache.items()}
+    with open(global_cache_path, "w", encoding="utf-8") as f:
+        json.dump(save_cache, f, ensure_ascii=False)
+
+    print("Saving results data...")
     results_data = {
         "experiment_config": {
             "lineup_filename": args.lineup_filename,
@@ -101,7 +135,9 @@ def main():
         "performance": {
             "execution_time_seconds": round(execution_time, 2),
             "total_evaluations": total_evaluations,
-            "unique_lineups_simulated": unique_lineups_simulated,
+            "unique_combinations_explored": unique_combinations_explored, 
+            "new_simulations_this_run": new_simulations_this_run,
+            "total_global_cache_size": final_cache_size,
             "cache_hits": cache_hits,
             "cache_hit_ratio": round(cache_ratio, 4)
         },
@@ -114,7 +150,6 @@ def main():
         }
     }
 
-    team_name = args.lineup_filename.replace("player_profiles_", "").replace(".json", "")
     output_filename = f"mcmc_results_{team_name}_{args.proposal}_{args.num_initials}chains.json"
     output_path = os.path.join(args.data_dir, output_filename)
 
