@@ -2,12 +2,12 @@ import numpy as np
 from tqdm import tqdm
 
 class MCMCOptimizer:
-    def __init__(self, simulator, num_sims_per_step=1000, tau=5):
+    def __init__(self, simulator, num_sims_per_step=1000, tau=5, initial_cache=None):
         self.simulator = simulator
         self.num_sims_per_step = num_sims_per_step
         self.tau = tau
         
-        self.score_cache = {}
+        self.score_cache = initial_cache if initial_cache is not None else {}
 
     def _get_cached_score(self, lineup):
         lineup_tuple = tuple(lineup)
@@ -25,11 +25,16 @@ class MCMCOptimizer:
         best_x = current_x.copy()
         best_F = current_F
         step_when_best_found = 0
+
+        visited_states = set()
+        visited_states.add(tuple(current_x))
         
         for t in tqdm(range(max_steps), desc="Running MCMC Steps", leave=False):
             proposed_x = proposal_func(current_x)
+
+            visited_states.add(tuple(proposed_x))
+
             proposed_F = self._get_cached_score(proposed_x)
-            
             delta_F = proposed_F - current_F
             
             if delta_F > 0:
@@ -51,5 +56,6 @@ class MCMCOptimizer:
             "best_lineup": best_x,
             "best_score": best_F,
             "steps_to_best": step_when_best_found,
-            "total_steps": max_steps
+            "total_steps": max_steps,
+            "visited_states": visited_states
         }
