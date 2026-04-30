@@ -1,16 +1,9 @@
 #!/bin/bash
 
 PROPOSALS=(
-    "hybrid_swap_insertion_proposal"
-    "hybrid_swap_reversal_proposal"
-    "hybrid_swap_kcycle_proposal"
-    "hybrid_swap_block_exchange_proposal"
-    "hybrid_insertion_reversal_proposal"
-    "hybrid_insertion_kcycle_proposal"
-    "hybrid_insertion_block_exchange_proposal"
-    "hybrid_reversal_kcycle_proposal"
-    "hybrid_reversal_block_exchange_proposal"
-    "hybrid_kcycle_block_exchange_proposal"
+    "random_swap_proposal"
+    "random_insertion_proposal"
+    "directional_reversal_proposal"
 )
 
 export team="LAD"
