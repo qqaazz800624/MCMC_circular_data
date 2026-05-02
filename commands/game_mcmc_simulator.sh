@@ -7,4 +7,5 @@ python scripts/game_mcmc_simulator.py \
     --proposal "random_swap_proposal" \
     --tau 5 \
     --data_dir "results" \
+    --initial_x "1,2,0,4,3,8,6,7,5" \
     --lineup_filename "player_profiles_LAD_2024.json"

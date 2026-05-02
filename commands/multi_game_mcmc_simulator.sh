@@ -3,7 +3,6 @@
 PROPOSALS=(
     "random_swap_proposal"
     "random_insertion_proposal"
-    "directional_reversal_proposal"
 )
 
 export team="LAD"
