@@ -96,5 +96,6 @@ class BaseballSimulator:
     def evaluate_lineup(self, lineup_indices, num_simulations=1000, seed=42):
         rng = np.random.default_rng(seed)
         runs = sum(self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations))
+        #runs_std = np.std([self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations)])/np.sqrt(num_simulations)
         
-        return runs / num_simulations
+        return runs / num_simulations#, runs_std

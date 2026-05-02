@@ -2,10 +2,9 @@
 
 python scripts/game_mcmc_simulator.py \
     --num_initials 1 \
-    --num_sims_per_step 1000 \
-    --max_steps 5000 \
-    --proposal "random_swap_proposal" \
+    --num_sims_per_step 100000 \
+    --max_steps 1000 \
+    --proposal "block_pair_exchange_proposal" \
     --tau 5 \
     --data_dir "results" \
-    --initial_x "1,2,0,4,3,8,6,7,5" \
     --lineup_filename "player_profiles_LAD_2024.json"
