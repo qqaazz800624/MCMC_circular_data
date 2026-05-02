@@ -18,13 +18,25 @@ def main():
     parser.add_argument("--proposal", type=str, default="random_swap_proposal", help="Proposal function to use")
     parser.add_argument("--tau", type=float, default=5, help="Temperature parameter for MCMC")
     parser.add_argument("--data_dir", type=str, default="results", help="Directory to save results")
+    parser.add_argument("--initial_x", type=str, default=None, help="Comma-separated initial lineup (e.g., '0,1,2,3,4,5,6,7,8')")
     parser.add_argument("--lineup_filename", type=str, default="player_profiles_LAD_2024.json", help="Filename for player profiles JSON")
 
     args = parser.parse_args()
 
     base_lineup = np.arange(9)
     num_states = args.num_initials
-    initial_states = generate_initial_states(elements=base_lineup, num_states=num_states, seed=42)
+
+    if args.initial_x:
+        parsed_state = np.array(list(map(int, args.initial_x.split(','))))
+        
+        if len(parsed_state) != 9:
+            raise ValueError(f"Expecting 9 elements, but got {len(parsed_state)}.")
+            
+        initial_states = [parsed_state.copy() for _ in range(num_states)]
+        print(f"Using user-provided initial state: {parsed_state} for all {num_states} chains.")
+    else:
+        initial_states = generate_initial_states(elements=base_lineup, num_states=num_states, seed=42)
+
     proposal_func = getattr(proposals, args.proposal)
 
     lineup_path = os.path.join(args.data_dir, args.lineup_filename)
