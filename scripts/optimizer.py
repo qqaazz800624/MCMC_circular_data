@@ -28,6 +28,8 @@ class MCMCOptimizer:
 
         visited_states = set()
         visited_states.add(tuple(current_x))
+
+        score_history = [current_F]
         
         for t in tqdm(range(max_steps), desc="Running MCMC Steps", leave=False):
             proposed_x = proposal_func(current_x)
@@ -50,6 +52,8 @@ class MCMCOptimizer:
                     best_F = current_F
                     best_x = current_x.copy()
                     step_when_best_found = t
+
+            score_history.append(current_F)
                     
         return {
             "initial_state": initial_x,
@@ -57,5 +61,6 @@ class MCMCOptimizer:
             "best_score": best_F,
             "steps_to_best": step_when_best_found,
             "total_steps": max_steps,
-            "visited_states": visited_states
+            "visited_states": visited_states,
+            "score_history": score_history
         }
