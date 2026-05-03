@@ -4,7 +4,7 @@ python scripts/game_mcmc_simulator.py \
     --num_initials 1 \
     --num_sims_per_step 100000 \
     --max_steps 1000 \
-    --proposal "block_pair_exchange_proposal" \
+    --proposal "k_cycle_shift_proposal" \
     --tau 5 \
     --data_dir "results" \
     --lineup_filename "player_profiles_LAD_2024.json"
