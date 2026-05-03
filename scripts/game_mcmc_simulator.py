@@ -80,6 +80,8 @@ def main():
 
     all_visited_states_this_run = set()
 
+    all_score_histories = []
+
     start_time = time.time()
     
     #for i in tqdm(range(args.num_initials), desc="Running MCMC Chains"):
@@ -92,7 +94,7 @@ def main():
         
         total_steps_explored_all_chains += result['total_steps']
         all_visited_states_this_run.update(result['visited_states'])
-        
+        all_score_histories.append(result['score_history'])
         if result['best_score'] > overall_best_score:
             overall_best_score = result['best_score']
             overall_best_lineup = result['best_lineup']
@@ -169,6 +171,11 @@ def main():
         json.dump(results_data, f, indent=4, ensure_ascii=False)
 
     print(f"Results successfully saved to {output_path}")
+
+    traces_filename = f"mcmc_traces_{team_name}_{args.proposal}_{args.num_initials}chains.npy"
+    traces_path = os.path.join(args.data_dir, traces_filename)
+    np.save(traces_path, np.array(all_score_histories))
+    print(f"Traces saved to {traces_path} (Shape: {np.array(all_score_histories).shape})")
 
 if __name__ == "__main__":
     main()
