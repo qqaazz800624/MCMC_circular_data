@@ -1,8 +1,9 @@
 #!/bin/bash
 
 PROPOSALS=(
-    "random_swap_proposal"
-    "random_insertion_proposal"
+    "directional_reversal_proposal"
+    "k_cycle_shift_proposal"
+    "block_pair_exchange_proposal"
 )
 
 export team="LAD"
@@ -18,8 +19,8 @@ do
     
     python scripts/game_mcmc_simulator.py \
         --num_initials 1 \
-        --num_sims_per_step 1000 \
-        --max_steps 5000 \
+        --num_sims_per_step 100000 \
+        --max_steps 1000 \
         --proposal "$PROPOSAL" \
         --tau 5 \
         --data_dir "results" \
