@@ -19,6 +19,7 @@ def main():
     parser.add_argument("--tau", type=float, default=5, help="Temperature parameter for MCMC")
     parser.add_argument("--data_dir", type=str, default="results", help="Directory to save results")
     parser.add_argument("--initial_x", type=str, default=None, help="Comma-separated initial lineup (e.g., '0,1,2,3,4,5,6,7,8')")
+    parser.add_argument("--experiment_name", type=str, default="1st_1000steps", help="Name for this experiment (used in output filenames)")
     parser.add_argument("--lineup_filename", type=str, default="player_profiles_LAD_2024.json", help="Filename for player profiles JSON")
 
     args = parser.parse_args()
@@ -164,7 +165,7 @@ def main():
         }
     }
 
-    output_filename = f"mcmc_results_{team_name}_{args.proposal}_{args.num_initials}chains.json"
+    output_filename = f"mcmc_results_{args.experiment_name}_{team_name}_{args.proposal}_{args.num_initials}chains.json"
     output_path = os.path.join(args.data_dir, output_filename)
 
     with open(output_path, "w", encoding="utf-8") as f:
@@ -172,7 +173,7 @@ def main():
 
     print(f"Results successfully saved to {output_path}")
 
-    traces_filename = f"mcmc_traces_{team_name}_{args.proposal}_{args.num_initials}chains.npy"
+    traces_filename = f"mcmc_traces_{args.experiment_name}_{team_name}_{args.proposal}_{args.num_initials}chains.npy"
     traces_path = os.path.join(args.data_dir, traces_filename)
     np.save(traces_path, np.array(all_score_histories))
     print(f"Traces saved to {traces_path} (Shape: {np.array(all_score_histories).shape})")
