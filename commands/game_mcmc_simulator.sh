@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export PROPOSAL="random_swap_proposal"
-export EXPERIMENT_NAME="2nd_1000steps"
+export PROPOSAL="k_cycle_shift_proposal"
+export EXPERIMENT_NAME="3rd_1000steps"
 
 echo "Running MCMC simulator for $EXPERIMENT_NAME with $PROPOSAL and 1000 steps..."
 
@@ -12,7 +12,7 @@ python scripts/game_mcmc_simulator.py \
     --proposal "$PROPOSAL" \
     --tau 5 \
     --data_dir "results" \
-    --initial_x "2,4,1,0,7,3,6,5,8" \
+    --initial_x "2,0,1,4,3,5,6,7,8" \
     --experiment_name "$EXPERIMENT_NAME" \
     --lineup_filename "player_profiles_LAD_2024.json"
 
