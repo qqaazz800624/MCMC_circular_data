@@ -1,6 +1,8 @@
 #!/bin/bash
 
 PROPOSALS=(
+    "random_swap_proposal"
+    "random_insertion_proposal"
     "directional_reversal_proposal"
     "k_cycle_shift_proposal"
     "block_pair_exchange_proposal"
@@ -8,6 +10,8 @@ PROPOSALS=(
 
 export team="LAD"
 export year="2024"
+export tau=3
+export EXPERIMENT_NAME="tau_${tau}_1000steps"
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} proposals..."
 
@@ -22,8 +26,9 @@ do
         --num_sims_per_step 100000 \
         --max_steps 1000 \
         --proposal "$PROPOSAL" \
-        --tau 5 \
+        --tau "$tau" \
         --data_dir "results" \
+        --experiment_name "$EXPERIMENT_NAME" \
         --lineup_filename "player_profiles_${team}_${year}.json"
         
     echo "Finished: $PROPOSAL"

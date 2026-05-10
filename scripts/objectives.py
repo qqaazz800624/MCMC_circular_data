@@ -98,4 +98,4 @@ class BaseballSimulator:
         runs = sum(self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations))
         #runs_std = np.std([self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations)])/np.sqrt(num_simulations)
         
-        return runs / num_simulations#, runs_std
+        return runs / num_simulations #, runs_std
