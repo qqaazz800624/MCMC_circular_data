@@ -1,6 +1,6 @@
 srun --nodes=1 \
      --ntasks-per-node=1 \
-     --cpus-per-task=4 \
+     --cpus-per-task=5 \
      --partition=defq  \
      --gres=gpu:pro6000:1 \
      --cpu-bind=none \
