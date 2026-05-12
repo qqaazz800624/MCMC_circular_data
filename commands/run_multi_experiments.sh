@@ -8,6 +8,8 @@ PROPOSALS=(
     "block_pair_exchange_proposal"
 )
 
+export tau=4
+
 echo "Starting batch experiments for ${#PROPOSALS[@]} hybrid proposals..."
 
 for PROPOSAL in "${PROPOSALS[@]}"
@@ -26,7 +28,7 @@ do
         --proposal "$PROPOSAL" \
         --alpha 1.0 \
         --beta 100 \
-        --tau 5 \
+        --tau $tau \
         --true_max_F 8.55078 \
         --save_dir "results"
         
