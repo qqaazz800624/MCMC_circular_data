@@ -96,7 +96,7 @@ def main():
     csv_filename = os.path.join(args.save_dir, f"chain_details_{args.proposal}_tau{args.tau}.csv")
     df_details.to_csv(csv_filename, index=False)
 
-    print(f"✅ Results successfully saved to the '{args.save_dir}' directory.")
+    print(f"Results successfully saved to the '{args.save_dir}' directory.")
 
 if __name__ == "__main__":
     main()
