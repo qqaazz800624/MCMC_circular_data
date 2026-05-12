@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PROPOSAL="random_swap_proposal"
+export PROPOSAL="k_cycle_shift_proposal"
 export EXPERIMENT_NAME="1st_1000steps"
 export team="LAA"
 export year="2023"
