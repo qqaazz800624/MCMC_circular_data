@@ -29,10 +29,12 @@ do
         --tau "$tau" \
         --data_dir "results" \
         --experiment_name "$EXPERIMENT_NAME" \
-        --lineup_filename "player_profiles_${team}_${year}.json"
+        --lineup_filename "player_profiles_${team}_${year}.json" &
         
-    echo "Finished: $PROPOSAL"
+    echo "Started: $PROPOSAL in the background."
     echo ""
 done
+
+wait
 
 echo "All experiments completed successfully!"
