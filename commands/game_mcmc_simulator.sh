@@ -1,9 +1,9 @@
 #!/bin/bash
 
-export PROPOSAL="block_pair_exchange_proposal"
+export PROPOSAL="random_swap_proposal"
 export EXPERIMENT_NAME="1st_1000steps"
-export team="LAA"
-export year="2023"
+export team="BOS"
+export year="2024"
 
 echo "Running MCMC simulator for $EXPERIMENT_NAME with $PROPOSAL and 1000 steps..."
 
