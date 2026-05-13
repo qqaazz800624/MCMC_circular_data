@@ -10,7 +10,7 @@ PROPOSALS=(
 
 export team="LAD"
 export year="2024"
-export tau=0.5
+export tau=0.25
 export EXPERIMENT_NAME="tau_${tau}_1000steps"
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} proposals..."
