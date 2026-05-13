@@ -21,6 +21,7 @@ def main():
     parser.add_argument("--initial_x", type=str, default=None, help="Comma-separated initial lineup (e.g., '0,1,2,3,4,5,6,7,8')")
     parser.add_argument("--experiment_name", type=str, default="1st_1000steps", help="Name for this experiment (used in output filenames)")
     parser.add_argument("--lineup_filename", type=str, default="player_profiles_LAD_2024.json", help="Filename for player profiles JSON")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
 
     args = parser.parse_args()
 
@@ -36,7 +37,7 @@ def main():
         initial_states = [parsed_state.copy() for _ in range(num_states)]
         print(f"Using user-provided initial state: {parsed_state} for all {num_states} chains.")
     else:
-        initial_states = generate_initial_states(elements=base_lineup, num_states=num_states, seed=42)
+        initial_states = generate_initial_states(elements=base_lineup, num_states=num_states, seed=args.seed)
 
     proposal_func = getattr(proposals, args.proposal)
 
@@ -82,6 +83,8 @@ def main():
     all_visited_states_this_run = set()
 
     all_score_histories = []
+    all_state_histories = []
+    overall_improvement_log = []
 
     start_time = time.time()
     
@@ -96,11 +99,14 @@ def main():
         total_steps_explored_all_chains += result['total_steps']
         all_visited_states_this_run.update(result['visited_states'])
         all_score_histories.append(result['score_history'])
+        all_state_histories.append(result['state_history'])
+
         if result['best_score'] > overall_best_score:
             overall_best_score = result['best_score']
             overall_best_lineup = result['best_lineup']
             overall_best_chain_idx = i
             overall_best_step = result['steps_to_best']
+            overall_improvement_log = result['improvement_log']
     
     end_time = time.time()
     execution_time = end_time - start_time
@@ -130,6 +136,19 @@ def main():
     print(f"Best lineup found overall: {overall_best_lineup}")
     print(f"Best expected score: {overall_best_score:.3f}")
     print(f"Found in Chain #{overall_best_chain_idx} at step {overall_best_step}")
+    print("=" * 50)
+
+    print(f"Improvement Log ({args.proposal}):")
+    log_strs = []
+    for entry in overall_improvement_log:
+        if entry['note'] == "Initial":
+            log_strs.append(f"Start ({entry['score']:.3f})")
+        elif entry['note'] == "New High":
+            log_strs.append(f"{entry['step']} ({entry['score']:.3f})")
+        elif entry['note'] == "Tie":
+            log_strs.append(f"{entry['step']} (Tie)")
+            
+    print(" -> ".join(log_strs))
     print("=" * 50)
 
     print(f"Saving updated global cache to {global_cache_path}...")
@@ -175,8 +194,15 @@ def main():
 
     traces_filename = f"mcmc_traces_{args.experiment_name}_{team_name}_{args.proposal}_{args.num_initials}chains.npy"
     traces_path = os.path.join(args.data_dir, traces_filename)
-    np.save(traces_path, np.array(all_score_histories))
-    print(f"Traces saved to {traces_path} (Shape: {np.array(all_score_histories).shape})")
+
+    scores_array = np.array(all_score_histories)
+    states_array = np.array(all_state_histories)
+
+    np.savez_compressed(traces_path, scores=scores_array, states=states_array)
+    
+    print(f"Traces saved to {traces_path}")
+    print(f"   - Scores shape: {scores_array.shape}")
+    print(f"   - States shape: {states_array.shape}")
 
 if __name__ == "__main__":
     main()
