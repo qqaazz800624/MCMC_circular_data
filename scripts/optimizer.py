@@ -30,6 +30,9 @@ class MCMCOptimizer:
         visited_states.add(tuple(current_x))
 
         score_history = [current_F]
+        state_history = [current_x.copy()]
+
+        improvement_log = [{"step": 0, "score": float(best_F), "note": "Initial"}]
         
         for t in tqdm(range(max_steps), desc="Running MCMC Steps", leave=False):
             proposed_x = proposal_func(current_x)
@@ -51,9 +54,14 @@ class MCMCOptimizer:
                 if current_F > best_F:
                     best_F = current_F
                     best_x = current_x.copy()
-                    step_when_best_found = t
+                    step_when_best_found = t + 1
+                    improvement_log.append({"step": t + 1, "score": float(best_F), "note": "New High"})
+
+                elif abs(current_F - best_F) < 1e-6 and tuple(current_x) != tuple(best_x):
+                    improvement_log.append({"step": t + 1, "score": float(current_F), "note": "Tie"})
 
             score_history.append(current_F)
+            state_history.append(current_x.copy())
                     
         return {
             "initial_state": initial_x,
@@ -62,5 +70,7 @@ class MCMCOptimizer:
             "steps_to_best": step_when_best_found,
             "total_steps": max_steps,
             "visited_states": visited_states,
-            "score_history": score_history
+            "score_history": score_history,
+            "state_history": state_history,
+            "improvement_log": improvement_log
         }
