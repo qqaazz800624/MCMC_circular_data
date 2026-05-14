@@ -8,9 +8,9 @@ PROPOSALS=(
     "block_pair_exchange_proposal"
 )
 
-export team="LAD"
+export team="NYY"
 export year="2024"
-export tau=0.25
+export tau=5
 export EXPERIMENT_NAME="tau_${tau}_1000steps"
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} proposals..."
