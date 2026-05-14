@@ -54,11 +54,11 @@ class MCMCOptimizer:
                 if current_F > best_F:
                     best_F = current_F
                     best_x = current_x.copy()
-                    step_when_best_found = t + 1
-                    improvement_log.append({"step": t + 1, "score": float(best_F), "note": "New High"})
+                    step_when_best_found = t
+                    improvement_log.append({"step": t, "score": float(best_F), "note": "New High"})
 
                 elif abs(current_F - best_F) < 1e-6 and tuple(current_x) != tuple(best_x):
-                    improvement_log.append({"step": t + 1, "score": float(current_F), "note": "Tie"})
+                    improvement_log.append({"step": t, "score": float(current_F), "note": "Tie"})
 
             score_history.append(current_F)
             state_history.append(current_x.copy())
