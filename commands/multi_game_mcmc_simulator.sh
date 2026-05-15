@@ -8,7 +8,7 @@ PROPOSALS=(
     "block_pair_exchange_proposal"
 )
 
-export team="NYY"
+export team="LAD"
 export year="2024"
 export tau=5
 export EXPERIMENT_NAME="tau_${tau}_1000steps"
