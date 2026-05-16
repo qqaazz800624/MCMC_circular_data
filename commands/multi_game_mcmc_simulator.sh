@@ -8,10 +8,11 @@ PROPOSALS=(
     "block_pair_exchange_proposal"
 )
 
-export team="LAD"
-export year="2024"
-export tau=5
-export EXPERIMENT_NAME="tau_${tau}_1000steps"
+export TEAM="LAD"
+export YEAR="2024"
+export TAU=5
+export SEED=44
+export EXPERIMENT_NAME="seed_${SEED}_1000steps"
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} proposals..."
 
@@ -26,10 +27,11 @@ do
         --num_sims_per_step 100000 \
         --max_steps 1000 \
         --proposal "$PROPOSAL" \
-        --tau "$tau" \
+        --tau "$TAU" \
         --data_dir "results" \
         --experiment_name "$EXPERIMENT_NAME" \
-        --lineup_filename "player_profiles_${team}_${year}.json" &
+        --lineup_filename "player_profiles_${TEAM}_${YEAR}.json" \
+        --seed "$SEED" &
         
     echo "Started: $PROPOSAL in the background."
     echo ""
