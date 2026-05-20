@@ -10,9 +10,9 @@ PROPOSALS=(
 
 export TEAM="LAD"
 export YEAR="2024"
-export TAU=5
-export SEED=44
-export EXPERIMENT_NAME="seed_${SEED}_1000steps"
+export TAU=20
+export SEED=42
+export EXPERIMENT_NAME="tau_${TAU}_1st_1000steps"
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} proposals..."
 

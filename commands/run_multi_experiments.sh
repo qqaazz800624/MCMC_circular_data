@@ -8,7 +8,7 @@ PROPOSALS=(
     "block_pair_exchange_proposal"
 )
 
-export tau=0.25
+export tau=20
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} hybrid proposals..."
 
