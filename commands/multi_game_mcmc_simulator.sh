@@ -10,9 +10,11 @@ PROPOSALS=(
 
 export TEAM="LAD"
 export YEAR="2024"
-export TAU=20
-export SEED=42
-export EXPERIMENT_NAME="tau_${TAU}_1st_1000steps"
+export TAU=0.005
+export MAX_STEPS=3000
+export INITIAL_SEED=42
+export SEED=43
+export EXPERIMENT_NAME="tau_${TAU}_${MAX_STEPS}steps"
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} proposals..."
 
@@ -25,12 +27,13 @@ do
     python scripts/game_mcmc_simulator.py \
         --num_initials 1 \
         --num_sims_per_step 100000 \
-        --max_steps 1000 \
+        --max_steps "$MAX_STEPS" \
         --proposal "$PROPOSAL" \
         --tau "$TAU" \
         --data_dir "results" \
         --experiment_name "$EXPERIMENT_NAME" \
         --lineup_filename "player_profiles_${TEAM}_${YEAR}.json" \
+        --initial_seed "$INITIAL_SEED" \
         --seed "$SEED" &
         
     echo "Started: $PROPOSAL in the background."

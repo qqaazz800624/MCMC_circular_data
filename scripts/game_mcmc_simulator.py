@@ -21,7 +21,8 @@ def main():
     parser.add_argument("--initial_x", type=str, default=None, help="Comma-separated initial lineup (e.g., '0,1,2,3,4,5,6,7,8')")
     parser.add_argument("--experiment_name", type=str, default="1st_1000steps", help="Name for this experiment (used in output filenames)")
     parser.add_argument("--lineup_filename", type=str, default="player_profiles_LAD_2024.json", help="Filename for player profiles JSON")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--initial_seed", type=int, default=42, help="Seed for generating the common initial lineup")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for MCMC trajectory reproducibility")
 
     args = parser.parse_args()
 
@@ -37,7 +38,9 @@ def main():
         initial_states = [parsed_state.copy() for _ in range(num_states)]
         print(f"Using user-provided initial state: {parsed_state} for all {num_states} chains.")
     else:
-        initial_states = generate_initial_states(elements=base_lineup, num_states=num_states, seed=args.seed)
+        single_initial = generate_initial_states(elements=base_lineup, num_states=num_states, seed=args.initial_seed)[0]
+        initial_states = [single_initial.copy() for _ in range(num_states)]
+        print(f"Using FIXED random initial state (initial_seed={args.initial_seed}): {single_initial} for all chains.")
 
     proposal_func = getattr(proposals, args.proposal)
 
@@ -88,12 +91,14 @@ def main():
 
     start_time = time.time()
     
-    #for i in tqdm(range(args.num_initials), desc="Running MCMC Chains"):
     for i in range(args.num_initials):
+        chain_seed = args.seed + i
+        
         result = optimizer.optimize(
             initial_x=initial_states[i],
             proposal_func=proposal_func,  
-            max_steps=args.max_steps         
+            max_steps=args.max_steps,
+            seed=chain_seed         
         )
         
         total_steps_explored_all_chains += result['total_steps']
@@ -147,6 +152,8 @@ def main():
             log_strs.append(f"{entry['step']} ({entry['score']:.3f})")
         elif entry['note'] == "Tie":
             log_strs.append(f"{entry['step']} (Tie)")
+        elif entry['note'] == "Revisit Best":
+            log_strs.append(f"{entry['step']} (Revisit)")
             
     print(" -> ".join(log_strs))
     print("=" * 50)
@@ -164,7 +171,9 @@ def main():
             "num_sims_per_step": args.num_sims_per_step,
             "max_steps": args.max_steps,
             "proposal": args.proposal,
-            "tau": args.tau
+            "tau": args.tau,
+            "initial_seed": args.initial_seed,
+            "mcmc_base_seed": args.seed
         },
         "performance": {
             "execution_time_seconds": round(execution_time, 2),

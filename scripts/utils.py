@@ -46,20 +46,17 @@ def generate_initial_states(elements, num_states=10000, seed=42):
     seed : int
         The random seed for reproducibility.
     """
-    np.random.seed(seed)
+    rng = np.random.default_rng(seed)
     
     elements = np.asarray(elements) 
     initial_states = []
     
     for _ in range(num_states):
         state = elements.copy()
-        np.random.shuffle(state)
+        rng.shuffle(state)
         initial_states.append(state)
         
     return initial_states
-
-
-import numpy as np
 
 def run_single_mcmc_chain(initial_x, 
                           objective_func, 

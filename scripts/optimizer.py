@@ -18,7 +18,10 @@ class MCMCOptimizer:
         self.score_cache[lineup_tuple] = score
         return score
 
-    def optimize(self, initial_x, proposal_func, max_steps=5000):
+    def optimize(self, initial_x, proposal_func, max_steps=5000, seed=None):
+        
+        rng = np.random.default_rng(seed)
+        
         current_x = initial_x.copy()
         current_F = self._get_cached_score(current_x)
         
@@ -35,7 +38,8 @@ class MCMCOptimizer:
         improvement_log = [{"step": 0, "score": float(best_F), "note": "Initial"}]
         
         for t in tqdm(range(max_steps), desc="Running MCMC Steps", leave=False):
-            proposed_x = proposal_func(current_x)
+            actual_step = t + 1 
+            proposed_x = proposal_func(current_x, rng)
 
             visited_states.add(tuple(proposed_x))
 
@@ -47,18 +51,22 @@ class MCMCOptimizer:
             else:
                 acceptance_prob = np.exp(max(delta_F / self.tau, -700))
                 
-            if np.random.rand() <= acceptance_prob:
+            if rng.random() <= acceptance_prob:
                 current_x = proposed_x
                 current_F = proposed_F
                 
-                if current_F > best_F:
-                    best_F = current_F
-                    best_x = current_x.copy()
-                    step_when_best_found = t
-                    improvement_log.append({"step": t, "score": float(best_F), "note": "New High"})
+            if current_F > best_F + 1e-6:
+                best_F = current_F
+                best_x = current_x.copy()
+                step_when_best_found = actual_step
+                improvement_log.append({"step": actual_step, "score": float(best_F), "note": "New High"})
 
-                elif abs(current_F - best_F) < 1e-6 and tuple(current_x) != tuple(best_x):
-                    improvement_log.append({"step": t, "score": float(current_F), "note": "Tie"})
+            elif abs(current_F - best_F) <= 1e-6:
+                if tuple(current_x) != tuple(best_x):
+                    best_x = current_x.copy()
+                    improvement_log.append({"step": actual_step, "score": float(current_F), "note": "Tie"})
+                else:
+                    improvement_log.append({"step": actual_step, "score": float(current_F), "note": "Revisit Best"})
 
             score_history.append(current_F)
             state_history.append(current_x.copy())
