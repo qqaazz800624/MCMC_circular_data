@@ -3,6 +3,6 @@
 python scripts/best_x_revisit.py \
     --save_dir_plots "results/plots" \
     --save_dir "results" \
-    --experiment_name "tau_0.01_3rd_1000steps" \
+    --experiment_name "tau_0.005_3000steps" \
     --team "LAD" \
     --year "2024" 
