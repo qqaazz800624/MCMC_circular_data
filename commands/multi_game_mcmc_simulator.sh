@@ -12,7 +12,7 @@ export TEAM="LAD"
 export YEAR="2024"
 export TAU=0.005
 export MAX_STEPS=3000
-export INITIAL_SEED=47
+export INITIAL_SEED=49
 export SEED=43
 export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${MAX_STEPS}steps"
 
@@ -31,7 +31,7 @@ do
         --proposal "$PROPOSAL" \
         --tau "$TAU" \
         --data_dir "results" \
-        --cache_dir "results" \
+        --cache_dir "/data/share/mcmc" \
         --experiment_name "$EXPERIMENT_NAME" \
         --lineup_filename "player_profiles_${TEAM}_${YEAR}.json" \
         --initial_seed "$INITIAL_SEED" \
