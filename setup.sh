@@ -6,4 +6,5 @@ srun --nodes=1 \
      --cpu-bind=none \
      --time=24:00:00 \
      --container-image='/data/container-images/enroot/nvidia+pytorch+25.03-py3.sqsh' \
-     --container-mount-home --pty /bin/bash -l
+     --container-mount-home --pty /bin/bash -l \
+     --container-mounts=/data:/data/share
