@@ -171,12 +171,16 @@ def main():
         except Exception as e:
             print(f"Warning: Could not read existing cache for merging: {e}")
             
-    latest_global_cache.update(my_cache)
+    new_entries_count = 0
+    for k, v in my_cache.items():
+        if k not in latest_global_cache:
+            latest_global_cache[k] = v
+            new_entries_count += 1
     
     with open(global_cache_path, "w", encoding="utf-8") as f:
         json.dump(latest_global_cache, f, ensure_ascii=False)
         
-    print(f"Global cache successfully merged and saved! Total size: {len(latest_global_cache)}")
+    print(f"Global cache successfully merged and saved! Added {new_entries_count} new entries. Total size: {len(latest_global_cache)}")
 
     print("Saving results data...")
     results_data = {
