@@ -160,9 +160,23 @@ def main():
     print("=" * 50)
 
     print(f"Saving updated global cache to {global_cache_path}...")
-    save_cache = {','.join(map(str, k)): v for k, v in optimizer.score_cache.items()}
+    
+    my_cache = {','.join(map(str, k)): v for k, v in optimizer.score_cache.items()}
+    
+    latest_global_cache = {}
+    if os.path.exists(global_cache_path):
+        try:
+            with open(global_cache_path, "r", encoding="utf-8") as f:
+                latest_global_cache = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not read existing cache for merging: {e}")
+            
+    latest_global_cache.update(my_cache)
+    
     with open(global_cache_path, "w", encoding="utf-8") as f:
-        json.dump(save_cache, f, ensure_ascii=False)
+        json.dump(latest_global_cache, f, ensure_ascii=False)
+        
+    print(f"Global cache successfully merged and saved! Total size: {len(latest_global_cache)}")
 
     print("Saving results data...")
     results_data = {
