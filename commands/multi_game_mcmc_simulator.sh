@@ -12,9 +12,9 @@ export TEAM="LAD"
 export YEAR="2024"
 export TAU=0.005
 export MAX_STEPS=3000
-export INITIAL_SEED=42
+export INITIAL_SEED=44
 export SEED=43
-export EXPERIMENT_NAME="tau_${TAU}_${MAX_STEPS}steps"
+export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${MAX_STEPS}steps"
 
 echo "Starting batch experiments for ${#PROPOSALS[@]} proposals..."
 
@@ -43,4 +43,4 @@ done
 
 wait
 
-echo "All experiments completed successfully!"
+echo "All experiments of ${EXPERIMENT_NAME} completed successfully!"
