@@ -31,6 +31,7 @@ do
         --proposal "$PROPOSAL" \
         --tau "$TAU" \
         --data_dir "results" \
+        --cache_dir "/data/share/mcmc" \
         --experiment_name "$EXPERIMENT_NAME" \
         --lineup_filename "player_profiles_${TEAM}_${YEAR}.json" \
         --initial_seed "$INITIAL_SEED" \

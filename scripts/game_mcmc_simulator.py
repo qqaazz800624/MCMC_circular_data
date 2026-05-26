@@ -18,6 +18,7 @@ def main():
     parser.add_argument("--proposal", type=str, default="random_swap_proposal", help="Proposal function to use")
     parser.add_argument("--tau", type=float, default=5, help="Temperature parameter for MCMC")
     parser.add_argument("--data_dir", type=str, default="results", help="Directory to save results")
+    parser.add_argument("--cache_dir", type=str, default="/data/share/mcmc", help="Directory to save/load global cache")
     parser.add_argument("--initial_x", type=str, default=None, help="Comma-separated initial lineup (e.g., '0,1,2,3,4,5,6,7,8')")
     parser.add_argument("--experiment_name", type=str, default="1st_1000steps", help="Name for this experiment (used in output filenames)")
     parser.add_argument("--lineup_filename", type=str, default="player_profiles_LAD_2024.json", help="Filename for player profiles JSON")
@@ -51,7 +52,7 @@ def main():
         player_profiles = json.load(f)
 
     team_name = args.lineup_filename.replace("player_profiles_", "").replace(".json", "")
-    global_cache_path = os.path.join(args.data_dir, f"global_cache_{team_name}.json")
+    global_cache_path = os.path.join(args.cache_dir, f"global_cache_{team_name}.json")
 
     global_cache = {}
     if os.path.exists(global_cache_path):
