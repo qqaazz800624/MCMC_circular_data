@@ -1,16 +1,16 @@
 #!/bin/bash
 
-export PROPOSAL="directional_reversal_proposal"
+export PROPOSAL="block_pair_exchange_proposal"
 
 export TEAM="LAD"
 export YEAR="2024"
 export TAU=0.005
 export MAX_STEPS=3000
-export INITIAL_SEED=46
+export INITIAL_SEED=49
 export SEED=43
 export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${MAX_STEPS}steps"
 
-echo "Starting mcmc experiments for ${#PROPOSALS[@]} proposals..."
+echo "Starting mcmc experiments for ${PROPOSAL} proposal..."
 
 echo "============================================================"
 echo "Currently Running: $PROPOSAL"
