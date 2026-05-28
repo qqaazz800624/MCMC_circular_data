@@ -12,7 +12,7 @@ export TEAM="LAD"
 export YEAR="2024"
 export TAU=0.005
 export MAX_STEPS=3000
-export INITIAL_SEED=49
+export INITIAL_SEED=45
 export SEED=43
 export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${MAX_STEPS}steps"
 
