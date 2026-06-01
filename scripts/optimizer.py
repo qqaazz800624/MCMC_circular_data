@@ -37,7 +37,7 @@ class MCMCOptimizer:
 
         improvement_log = [{"step": 0, "score": float(best_F), "note": "Initial"}]
         
-        for t in tqdm(range(max_steps), desc="Running MCMC Steps", leave=False):
+        for t in tqdm(range(max_steps), desc=f"Running MCMC Steps with proposal {proposal_func.__name__}", leave=False):
             actual_step = t + 1 
             proposed_x = proposal_func(current_x, rng)
 
