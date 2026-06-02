@@ -18,7 +18,7 @@ class MCMCOptimizer:
         self.score_cache[lineup_tuple] = score
         return score
 
-    def optimize(self, initial_x, proposal_func, max_steps=5000, seed=None):
+    def optimize(self, initial_x, proposal_func, max_steps=5000, seed=None, chain_idx=None):
         
         rng = np.random.default_rng(seed)
         
@@ -37,7 +37,12 @@ class MCMCOptimizer:
 
         improvement_log = [{"step": 0, "score": float(best_F), "note": "Initial"}]
         
-        for t in tqdm(range(max_steps), desc=f"Running MCMC Steps with proposal {proposal_func.__name__}", leave=False):
+        if chain_idx is not None:
+            desc_str = f"Chain #{chain_idx} | {proposal_func.__name__}"
+        else:
+            desc_str = f"Running MCMC | {proposal_func.__name__}"
+
+        for t in tqdm(range(max_steps), desc=desc_str, leave=False):
             actual_step = t + 1 
             proposed_x = proposal_func(current_x, rng)
 

@@ -104,7 +104,8 @@ def main():
             initial_x=initial_states[i],
             proposal_func=proposal_func,  
             max_steps=args.max_steps,
-            seed=chain_seed         
+            seed=chain_seed,
+            chain_idx=i + 1     
         )
         
         chain_best_scores.append(result['best_score'])
