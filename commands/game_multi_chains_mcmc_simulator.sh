@@ -1,13 +1,13 @@
 #!/bin/bash
 
 export PROPOSAL="random_insertion_proposal"
-export NUM_CHAINS=5
+export NUM_CHAINS=50
 
 export TEAM="LAD"
 export YEAR="2024"
 export TAU=0.005
 export MAX_STEPS=3000
-export INITIAL_SEED=71
+export INITIAL_SEED=73
 export SEED=$((INITIAL_SEED + 1000))
 export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${MAX_STEPS}steps_${NUM_CHAINS}chains"
 

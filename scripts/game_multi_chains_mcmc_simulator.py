@@ -45,6 +45,10 @@ def main():
         else:
             print(f"Using {num_states} DIFFERENT random initial states generated from initial_seed={args.initial_seed}.")
 
+    print("First 10 initial states: ")
+    for i, state in enumerate(initial_states[:10]):
+        print(f"State {i + 1}: {state}")
+
     proposal_func = getattr(proposals, args.proposal)
 
     lineup_path = os.path.join(args.data_dir, args.lineup_filename)
