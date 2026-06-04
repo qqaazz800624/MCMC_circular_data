@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export PROPOSAL="random_insertion_proposal"
-export NUM_CHAINS=50
+export PROPOSAL="random_swap_proposal"
+export NUM_CHAINS=30
 
 export TEAM="LAD"
 export YEAR="2024"
