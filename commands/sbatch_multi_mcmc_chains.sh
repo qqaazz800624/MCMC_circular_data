@@ -4,22 +4,22 @@
 #SBATCH --cpus-per-task=5
 #SBATCH --partition=defq
 #SBATCH --gres=gpu:pro6000:1
-#SBATCH --time=48:00:00
+#SBATCH --time=168:00:00
 #SBATCH --container-mounts=/data:/data
 #SBATCH --container-image='/data/container-images/enroot/nvidia+pytorch+25.03-py3.sqsh'
 #SBATCH --container-mount-home
 #SBATCH --output=results/mcmc_run_%j.log
 
 
-export PROPOSAL="block_pair_exchange_proposal"
-export NUM_CHAINS=30
+export PROPOSAL="hybrid_reversal_block_exchange_proposal"
+export NUM_CHAINS=200
 export TEAM="LAD"
 export YEAR="2024"
 export TAU=0.005
 export MAX_STEPS=3000
-export INITIAL_SEED=55
-export SEED=$((INITIAL_SEED + 1000))
-export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${MAX_STEPS}steps_${NUM_CHAINS}chains"
+export INITIAL_SEED=10
+export SEED=$((INITIAL_SEED + 1102))
+export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${PROPOSAL}_${NUM_CHAINS}chains"
 
 echo "Starting MCMC Experiment: $PROPOSAL"
 

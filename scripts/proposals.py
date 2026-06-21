@@ -136,3 +136,49 @@ def hybrid_kcycle_block_exchange_proposal(x, rng, k=None):
         return k_cycle_shift_proposal(x, rng, k)
     else:
         return block_pair_exchange_proposal(x, rng)
+
+import numpy as np
+
+def lbci_proposal(x, rng):
+    """
+    Local-Biased Circular Insertion (LBCI)
+    A decoupled, three-stage proposal function combining cyclic shifting, 
+    local fine-tuning, and global exploration for circular data optimization.
+    """
+    n = len(x)
+    
+    # 1. Macro-level (10% probability): Cyclic Shift
+    # Preserves all relative adjacent synergies perfectly. Shifts the entire 
+    # sequence to optimize the absolute positioning (e.g., Plate Appearances).
+    if rng.random() < 0.10:
+        shift = rng.integers(1, n)
+        return np.roll(x, shift)
+        
+    # Prepare for the insertion operation
+    x_prime = np.asarray(x).copy()
+    i = rng.integers(0, n)
+    elem = x_prime[i]
+    
+    # 2. Micro-level (~72% probability): Local-biased Insertion
+    # Designed for the late stages of MCMC. Restricts movement to 1-2 positions 
+    # adjacent to the original spot. Maintains a high acceptance rate and 
+    # accelerates convergence to the global maximum.
+    if rng.random() < 0.80:
+        shift = rng.choice([-2, -1, 1, 2])
+        j = (i + shift) % n  # Perfectly supports the circular wrap-around 
+    
+    # 3. Meso-level (~18% probability): Global Random Insertion
+    # Retains the exploration capability of standard Random Insertion 
+    # to prevent the chain from being trapped in local optima.
+    else:
+        j = rng.integers(0, n)
+        
+    # Prevent invalid in-place operations that waste iterations
+    if j == i:
+        j = (i + 1) % n
+        
+    # Execute removal and insertion
+    x_prime = np.delete(x_prime, i)
+    x_prime = np.insert(x_prime, j, elem)
+    
+    return x_prime
