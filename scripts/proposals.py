@@ -182,3 +182,44 @@ def lbci_proposal(x, rng):
     x_prime = np.insert(x_prime, j, elem)
     
     return x_prime
+
+def von_mises_fisher_circular_insertion_proposal(x, rng, kappa=1.5):
+    """
+    von Mises-Fisher Circular Insertion (VMFCI) Proposal
+    Inspired by Sinusoidal Positional Embedding, this proposal utilizes the circular normal 
+    distribution (von Mises-Fisher distribution) to calculate transition probabilities based on 
+    relative positions, integrating local fine-tuning with global exploration.
+    """
+    n = len(x)
+    
+    # 1. Macro-level: Retain cyclic shifts to optimize the absolute positional distribution
+    if rng.random() < 0.10:
+        shift = rng.integers(1, n)
+        return np.roll(x, shift)
+        
+    x_prime = np.asarray(x).copy()
+    i = rng.integers(0, n)
+    elem = x_prime[i]
+    
+    # 2. von Mises-Fisher probability calculation
+    # Calculate the angular differences between all positions (0 to n-1) and the origin i
+    positions = np.arange(n)
+    angles = 2 * np.pi * (positions - i) / n
+    
+    # Apply the cosine function to compute the unnormalized weights
+    weights = np.exp(kappa * np.cos(angles))
+    
+    # To ensure a strictly new state transition, set the probability of staying in place to 0
+    weights[i] = 0
+    
+    # Normalize the weights to form a valid probability distribution (sum to 1)
+    probs = weights / np.sum(weights)
+    
+    # Sample the target insertion index j based on the computed sinusoidal probabilities
+    j = rng.choice(positions, p=probs)
+    
+    # Execute the element removal and insertion operations
+    x_prime = np.delete(x_prime, i)
+    x_prime = np.insert(x_prime, j, elem)
+    
+    return x_prime

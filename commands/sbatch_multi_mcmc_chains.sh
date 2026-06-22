@@ -11,14 +11,14 @@
 #SBATCH --output=results/mcmc_run_%j.log
 
 
-export PROPOSAL="hybrid_reversal_block_exchange_proposal"
+export PROPOSAL="von_mises_fisher_circular_insertion_proposal"
 export NUM_CHAINS=200
 export TEAM="LAD"
 export YEAR="2024"
 export TAU=0.005
 export MAX_STEPS=3000
 export INITIAL_SEED=10
-export SEED=$((INITIAL_SEED + 1102))
+export SEED=$((INITIAL_SEED + 1108))
 export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${PROPOSAL}_${NUM_CHAINS}chains"
 
 echo "Starting MCMC Experiment: $PROPOSAL"
