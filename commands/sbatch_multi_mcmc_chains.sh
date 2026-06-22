@@ -18,7 +18,7 @@ export YEAR="2024"
 export TAU=0.005
 export MAX_STEPS=3000
 export INITIAL_SEED=10
-export SEED=$((INITIAL_SEED + 1108))
+export SEED=$((INITIAL_SEED + 1109))
 export EXPERIMENT_NAME="INITIAL_SEED_${INITIAL_SEED}_${PROPOSAL}_${NUM_CHAINS}chains"
 
 echo "Starting MCMC Experiment: $PROPOSAL"
