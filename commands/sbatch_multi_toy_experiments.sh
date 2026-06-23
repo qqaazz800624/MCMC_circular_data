@@ -23,7 +23,7 @@ PROPOSALS=(
     "von_mises_fisher_circular_insertion"
 )
 
-export TAU=20
+export TAU=0.005
 export NUM_EXPERIMENTS=10000
 export MAX_STEPS=50000
 export INITIAL_SEED=42

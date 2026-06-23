@@ -12,4 +12,4 @@ echo "Monitoring log file for job ID: $job_id"
 echo "Hint: Press Ctrl + C at any time to exit viewing, it will not affect the program execution."
 echo "============================================================"
 
-tail -f results/mcmc_run_${job_id}.log
+tail -f results/toy_experiment_${job_id}.log
