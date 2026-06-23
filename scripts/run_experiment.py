@@ -41,9 +41,12 @@ def main():
 
     print(f"\n--- Starting Experiment: {args.proposal} ---")
     for i in tqdm(range(args.num_experiments), desc="Simulating Chains"):
+        
+        chain_seed = args.seed + 10000 + i
+        
         final_x, final_F, h_time = run_single_mcmc_chain(
             initial_states[i], objective_func, proposal_func, g, 
-            args.alpha, args.beta, args.tau, args.true_max_F, args.max_steps
+            args.alpha, args.beta, args.tau, args.true_max_F, args.max_steps, seed=chain_seed
         )
         
         hitting_times.append(h_time)
@@ -54,7 +57,7 @@ def main():
             "chain_id": i + 1,
             "hitting_time": h_time,
             "final_F": final_F,
-            "final_x": str(final_x.tolist()), # 轉成乾淨的 string 格式
+            "final_x": str(final_x.tolist()),
             "success": h_time < args.max_steps
         })
 

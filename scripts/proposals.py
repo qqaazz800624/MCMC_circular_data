@@ -139,7 +139,7 @@ def hybrid_kcycle_block_exchange_proposal(x, rng, k=None):
 
 import numpy as np
 
-def lbci_proposal(x, rng):
+def local_biased_circular_insertion(x, rng):
     """
     Local-Biased Circular Insertion (LBCI)
     A decoupled, three-stage proposal function combining cyclic shifting, 
@@ -183,7 +183,7 @@ def lbci_proposal(x, rng):
     
     return x_prime
 
-def von_mises_fisher_circular_insertion_proposal(x, rng, kappa=1.5):
+def von_mises_fisher_circular_insertion(x, rng, kappa=1.5):
     """
     von Mises-Fisher Circular Insertion (VMFCI) Proposal
     Inspired by Sinusoidal Positional Embedding, this proposal utilizes the circular normal 

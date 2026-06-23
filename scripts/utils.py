@@ -65,11 +65,14 @@ def run_single_mcmc_chain(initial_x,
                           alpha, 
                           beta, tau, 
                           true_max_F, 
-                          max_steps=50000):
+                          max_steps=50000,
+                          seed=42):
     """
     Run a single MCMC chain starting from initial_x.
     Returns: (final_x, final_F, hitting_time)
     """
+    rng = np.random.default_rng(seed)
+
     current_x = initial_x.copy()
     current_F = objective_func(current_x, g, alpha, beta)[0]
 
@@ -77,7 +80,7 @@ def run_single_mcmc_chain(initial_x,
         return current_x, current_F, 0 
 
     for t in range(1, max_steps + 1):
-        proposed_x = proposal_func(current_x)
+        proposed_x = proposal_func(current_x, rng)
         proposed_F = objective_func(proposed_x, g, alpha, beta)[0]
         delta_F = proposed_F - current_F
 
@@ -86,7 +89,7 @@ def run_single_mcmc_chain(initial_x,
         else:
             acceptance_prob = np.exp(delta_F / tau)
 
-        if np.random.rand() <= acceptance_prob:
+        if rng.random() <= acceptance_prob:
             current_x = proposed_x
             current_F = proposed_F
 
