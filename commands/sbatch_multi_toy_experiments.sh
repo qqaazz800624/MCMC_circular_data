@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=5
+#SBATCH --cpus-per-task=8      
 #SBATCH --partition=defq
 #SBATCH --gres=gpu:pro6000:1
 #SBATCH --time=168:00:00
 #SBATCH --container-mounts=/data:/data
 #SBATCH --container-image='/data/container-images/enroot/nvidia+pytorch+25.03-py3.sqsh'
 #SBATCH --container-mount-home
-#SBATCH --output=results/toy_experiment_%j.log
+#SBATCH --output=results/toy_experiment_main_%j.log  
 
 # ==========================================
 # Experiment Configuration
@@ -39,13 +39,11 @@ echo "Running on node: $SLURMD_NODENAME"
 cd $SLURM_SUBMIT_DIR
 
 # ==========================================
-# Run Experiments Sequentially
+# Run Experiments in PARALLEL
 # ==========================================
 for PROPOSAL in "${PROPOSALS[@]}"
 do
-    echo "============================================================"
-    echo "Currently Running: $PROPOSAL"
-    echo "============================================================"
+    echo "Launching: $PROPOSAL in background..."
     
     python scripts/run_experiment.py \
         --num_experiments "$NUM_EXPERIMENTS" \
@@ -60,10 +58,12 @@ do
         --tau "$TAU" \
         --true_max_F 8.55078 \
         --save_dir "$SAVE_DIR" \
-        --seed "$INITIAL_SEED"
+        --seed "$INITIAL_SEED" > "$SAVE_DIR/${PROPOSAL}_${SLURM_JOB_ID}.log" 2>&1 &
         
-    echo "Finished: $PROPOSAL"
-    echo ""
 done
 
-echo "All experiments completed successfully!"
+echo "All jobs dispatched to background. Waiting for them to finish..."
+
+wait
+
+echo "All parallel experiments completed successfully!"
