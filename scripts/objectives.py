@@ -104,12 +104,12 @@ class BaseballSimulator:
 class BaseballModel:
     def __init__(self, player_profiles):
         """
-        Initializes the analytical engine for baseball lineups using Bukiet (1997).
+        Initializes the analytical engine for baseball lineups using Bukiet (1997)
+        with support for multi-out granular sub-classification.
         
-        player_profiles: List of dicts matching your player_profiles_LAD_2024.json format.
+        player_profiles: List of dicts matching your fine-grained JSON format.
         """
-        
-        self.event_types = ['OUT', 'BB', '1B', '2B', '3B', 'HR']
+        self.event_types = ['SINGLE_OUT', 'DOUBLE_OUT', 'TRIPLE_OUT', 'BB', '1B', '2B', '3B', 'HR']
         self.player_profiles = player_profiles
         
         # Numerical probability matrices mapped to profile arrays
@@ -186,11 +186,41 @@ class BaseballModel:
                     current_state = f"{outs}Outs_{base}"
                     from_idx = self.state_to_idx[current_state]
                     
-                    if outs == 2:
-                        P[from_idx, 24] += probs["OUT"]
-                    else:
-                        P[from_idx, self.state_to_idx[f"{outs + 1}Outs_{base}"]] += probs["OUT"]
+                    # 1. SINGLE_OUT (精確增加 1 個出局數)
+                    p_s_out = probs["SINGLE_OUT"]
+                    if p_s_out > 0:
+                        if outs == 2:
+                            P[from_idx, 24] += p_s_out
+                        else:
+                            P[from_idx, self.state_to_idx[f"{outs + 1}Outs_{base}"]] += p_s_out
                     
+                    # 2. DOUBLE_OUT (修復 KeyError 邊界條件)
+                    p_d_out = probs["DOUBLE_OUT"]
+                    if p_d_out > 0:
+                        has_force_at_1b = "1B" in base or base == "Full"
+                        if outs < 2 and has_force_at_1b:
+                            next_outs = outs + 2
+                            
+                            # 如果加完 2 出局後達到或超過 3 出局，直接送入 24 號吸收態 ("3Outs")
+                            if next_outs >= 3:
+                                P[from_idx, 24] += p_d_out
+                            else:
+                                dp_base_mapping = {"1B": "Empty", "1B_2B": "2B", "1B_3B": "3B", "Full": "2B_3B"}
+                                target_base = dp_base_mapping[base]
+                                P[from_idx, self.state_to_idx[f"{next_outs}Outs_{target_base}"]] += p_d_out
+                        else:
+                            # 不滿足雙殺條件，退化為普通一出局
+                            if outs == 2:
+                                P[from_idx, 24] += p_d_out
+                            else:
+                                P[from_idx, self.state_to_idx[f"{outs + 1}Outs_{base}"]] += p_d_out
+
+                    # 3. TRIPLE_OUT (直接無條件結束半局)
+                    p_t_out = probs["TRIPLE_OUT"]
+                    if p_t_out > 0:
+                        P[from_idx, 24] += p_t_out
+                    
+                    # 4. 安全上壘與保送事件 (1B, 2B, 3B, HR, BB)
                     for hit_type in ["1B", "2B", "3B", "HR", "BB"]:
                         prob = probs[hit_type]
                         if prob == 0: continue
@@ -202,6 +232,7 @@ class BaseballModel:
                             transition_prob = prob * weight
                             P[from_idx, to_idx] += transition_prob
                             R_expected[from_idx, to_idx] += transition_prob * runs
+                            
             P[24, 24] = 1.0
             lineup_matrices.append((P, R_expected))
         return lineup_matrices
@@ -225,4 +256,4 @@ class BaseballModel:
             u = u @ P_b
             batter_idx = (batter_idx + 1) % 9
             
-        return total_expected_runs * (innings)
+        return total_expected_runs * innings
