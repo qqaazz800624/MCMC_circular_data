@@ -2,9 +2,6 @@ import numpy as np
 import json
 from objectives import BaseballModel
 
-# ==============================================================================
-# [這裡請放置你的 BaseballModel class 程式碼]
-# ==============================================================================
 
 # ==============================================================================
 # EXECUTION & VERIFICATION TEST SCRIPT
@@ -21,8 +18,8 @@ if __name__ == "__main__":
     model = BaseballModel(player_profiles)
 
     # 3. Define two different lineups to test absolute generalizability and sorting variance
-    # Lineup A: Standard Order (0 -> 1 -> 2 -> ... -> 8)
-    lineup_a = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    # Lineup A
+    lineup_a = [8, 7, 6, 5, 4, 3, 2, 1, 0]
     
     # Lineup B: Custom Order
     lineup_b = [2, 1, 4, 0, 3, 7, 5, 8, 6]
