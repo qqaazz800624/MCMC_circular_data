@@ -4,7 +4,7 @@ from objectives import BaseballModel
 
 
 def main():
-    json_path = '/home/tlchen/MCMC_circular_data/results/player_profiles_LAD_2024.json'
+    json_path = '/home/qqaazz800624/MCMC_circular_data/results/player_profiles_SF_2024.json'
     with open(json_path, 'r') as f:
         player_profiles = json.load(f)
         
