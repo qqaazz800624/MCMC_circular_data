@@ -26,80 +26,309 @@ def toy_objective_1(x, g=None, alpha=1.0, beta=0.05):
     return out, linear_term, interaction_term
 
 
-class BaseballSimulator:
-    def __init__(self, player_profiles):
-        self.event_types = ['OUT', 'BB', '1B', '2B', '3B', 'HR']
-        self.player_profiles = player_profiles
+# class BaseballSimulator:
+#     def __init__(self, player_profiles):
+#         self.event_types = ['OUT', 'BB', '1B', '2B', '3B', 'HR']
+#         self.player_profiles = player_profiles
         
-        self.prob_matrix = np.array([[p[event] for event in self.event_types] for p in player_profiles])
+#         self.prob_matrix = np.array([[p[event] for event in self.event_types] for p in player_profiles])
+#         self.name_dict = {p['id']: p['name'] for p in player_profiles}
+#         self.prob_1b_to_home_on_double = 0.40  
+#         self.prob_2b_to_home_on_single = 0.60
+
+#     def _simulate_single_game(self, lineup_indices, rng, innings=9):
+#         total_runs = 0
+#         current_batter_idx = 0
+#         lineup_probs = self.prob_matrix[lineup_indices]
+        
+#         for _ in range(innings):
+#             outs = 0
+#             bases = np.array([0, 0, 0]) 
+            
+#             while outs < 3:
+#                 probs = lineup_probs[current_batter_idx]
+                
+#                 result = rng.choice(self.event_types, p=probs)
+                
+#                 if result == 'OUT':
+#                     outs += 1
+#                 elif result == 'HR':
+#                     total_runs += np.sum(bases) + 1
+#                     bases = np.array([0, 0, 0])
+#                 elif result == '3B':
+#                     total_runs += np.sum(bases)
+#                     bases = np.array([0, 0, 1])
+#                 elif result == '2B':
+#                     total_runs += bases[1] + bases[2]
+#                     if bases[0] == 1:
+#                         if rng.random() < self.prob_1b_to_home_on_double:
+#                             total_runs += 1
+#                             bases = np.array([0, 1, 0])
+#                         else:
+#                             bases = np.array([0, 1, 1]) 
+#                     else:
+#                         bases = np.array([0, 1, 0])
+#                 elif result == '1B':
+#                     total_runs += bases[2]
+                    
+#                     if bases[1] == 1:
+#                         if rng.random() < self.prob_2b_to_home_on_single:
+#                             total_runs += 1           
+#                             bases = np.array([1, bases[0], 0]) 
+#                         else:
+#                             bases = np.array([1, bases[0], 1]) 
+#                     else:
+#                         bases = np.array([1, bases[0], 0])
+#                 elif result == 'BB':
+#                     if bases[0] == 1 and bases[1] == 1 and bases[2] == 1:
+#                         total_runs += 1
+#                     elif bases[0] == 1 and bases[1] == 1:
+#                         bases = np.array([1, 1, 1])
+#                     elif bases[0] == 1:
+#                         bases = np.array([1, 1, bases[2]])
+#                     else:
+#                         bases = np.array([1, bases[1], bases[2]])
+                
+#                 current_batter_idx = (current_batter_idx + 1) % 9
+                
+#         return total_runs
+
+#     def evaluate_lineup(self, lineup_indices, num_simulations=1000, seed=42):
+#         rng = np.random.default_rng(seed)
+#         runs = sum(self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations))
+#         #runs_std = np.std([self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations)])/np.sqrt(num_simulations)
+        
+#         return runs / num_simulations #, runs_std
+
+# class BaseballSimulator:
+#     """
+#     舊版 Monte Carlo simulator (事件: OUT/BB/1B/2B/3B/HR, 無雙殺)。
+#     向量化以支援大樣本; evaluate_lineup 回傳 (平均得分, 單場得分標準差, 標準誤)。
+#     """
+#     EVENTS = ['OUT', 'BB', '1B', '2B', '3B', 'HR']
+
+#     def __init__(self, player_profiles):
+#         self.event_types = self.EVENTS
+#         self.player_profiles = player_profiles
+#         self.prob_matrix = np.array([[p[e] for e in self.EVENTS] for p in player_profiles])
+#         self.name_dict = {p['id']: p['name'] for p in player_profiles}
+#         self.prob_1b_to_home_on_double = 0.40
+#         self.prob_2b_to_home_on_single = 0.60
+
+#     # ---- 回傳每一場的得分向量 (向量化, 所有場次平行模擬) ----
+#     def simulate_runs(self, lineup_indices, num_simulations, innings=9, seed=42,
+#                       batch_size=2_000_000):
+#         rng = np.random.default_rng(seed)
+#         cum = np.cumsum(self.prob_matrix[np.asarray(lineup_indices)], axis=1)
+#         out = np.empty(num_simulations, dtype=np.int32)
+#         done = 0
+#         while done < num_simulations:
+#             g = min(batch_size, num_simulations - done)
+#             out[done:done + g] = self._simulate_batch(g, cum, rng, innings)
+#             done += g
+#         return out
+
+#     def _simulate_batch(self, G, cum, rng, innings):
+#         total = np.zeros(G, dtype=np.int32)
+#         batter = np.zeros(G, dtype=np.int64)
+#         b1 = np.zeros(G, dtype=np.int8); b2 = np.zeros(G, dtype=np.int8); b3 = np.zeros(G, dtype=np.int8)
+#         for _ in range(innings):
+#             outs = np.zeros(G, dtype=np.int8)
+#             b1[:] = 0; b2[:] = 0; b3[:] = 0
+#             active = outs < 3
+#             while active.any():
+#                 idx = np.where(active)[0]
+#                 u = rng.random(idx.shape[0])
+#                 ev = (u[:, None] >= cum[batter[idx]]).sum(axis=1)
+
+#                 m = ev == 0
+#                 if m.any(): outs[idx[m]] += 1
+
+#                 m = ev == 1                                   # BB
+#                 if m.any():
+#                     g = idx[m]; o1, o2, o3 = b1[g].copy(), b2[g].copy(), b3[g].copy()
+#                     loaded = (o1 == 1) & (o2 == 1) & (o3 == 1)
+#                     total[g[loaded]] += 1
+#                     n1 = np.ones_like(o1)
+#                     n2 = np.where(o1 == 1, 1, o2); n3 = np.where((o1 == 1) & (o2 == 1), 1, o3)
+#                     n2 = np.where(loaded, 1, n2); n3 = np.where(loaded, 1, n3)
+#                     b1[g], b2[g], b3[g] = n1, n2, n3
+
+#                 m = ev == 2                                   # 1B
+#                 if m.any():
+#                     g = idx[m]; o1, o2, o3 = b1[g].copy(), b2[g].copy(), b3[g].copy()
+#                     total[g] += o3
+#                     has2 = o2 == 1
+#                     score2 = has2 & (rng.random(g.shape[0]) < self.prob_2b_to_home_on_single)
+#                     total[g[score2]] += 1
+#                     b1[g] = 1; b2[g] = o1
+#                     b3[g] = np.where(has2 & ~score2, 1, 0).astype(np.int8)
+
+#                 m = ev == 3                                   # 2B
+#                 if m.any():
+#                     g = idx[m]; o1, o2, o3 = b1[g].copy(), b2[g].copy(), b3[g].copy()
+#                     total[g] += (o2 + o3)
+#                     has1 = o1 == 1
+#                     score1 = has1 & (rng.random(g.shape[0]) < self.prob_1b_to_home_on_double)
+#                     total[g[score1]] += 1
+#                     b1[g] = 0; b2[g] = 1
+#                     b3[g] = np.where(has1 & ~score1, 1, 0).astype(np.int8)
+
+#                 m = ev == 4                                   # 3B
+#                 if m.any():
+#                     g = idx[m]; total[g] += (b1[g] + b2[g] + b3[g]); b1[g] = 0; b2[g] = 0; b3[g] = 1
+
+#                 m = ev == 5                                   # HR
+#                 if m.any():
+#                     g = idx[m]; total[g] += (b1[g] + b2[g] + b3[g] + 1); b1[g] = 0; b2[g] = 0; b3[g] = 0
+
+#                 batter[idx] = (batter[idx] + 1) % 9
+#                 active = outs < 3
+#         return total
+
+#     def evaluate_lineup(self, lineup_indices, num_simulations=1000, seed=42, return_runs=False):
+#         """回傳 (mean, game_std, sem). game_std = 單場得分標準差; sem = 平均數的標準誤。"""
+#         runs = self.simulate_runs(lineup_indices, num_simulations, seed=seed)
+#         mean = runs.mean()
+#         game_std = runs.std(ddof=1)
+#         sem = game_std / np.sqrt(num_simulations)
+#         if return_runs:
+#             return mean, game_std, sem, runs
+#         return mean, game_std, sem
+
+
+class BaseballSimulator:
+    """
+    新版向量化 Monte Carlo simulator。
+
+    事件: ['SINGLE_OUT', 'DOUBLE_OUT', 'TRIPLE_OUT', 'BB', '1B', '2B', '3B', 'HR']
+
+    出局規則與 BaseballModel 完全一致:
+      * SINGLE_OUT : +1 出局, 跑者不動。
+      * DOUBLE_OUT : 一壘有封殺跑者時 -> 清掉一壘跑者 + 打者出局 (+2 出局,
+                     二三壘跑者留原位); 一壘無人時 -> 退化成 +1 出局。
+      * TRIPLE_OUT : 直接結束半局 (出局數記滿 3)。
+
+    向量化: 所有場次平行模擬, 可支援百萬 / 千萬場規模。
+    evaluate_lineup 回傳 (平均得分, 單場得分標準差, 標準誤)。
+    """
+    EVENTS = ['SINGLE_OUT', 'DOUBLE_OUT', 'TRIPLE_OUT', 'BB', '1B', '2B', '3B', 'HR']
+
+    def __init__(self, player_profiles):
+        self.event_types = self.EVENTS
+        self.player_profiles = player_profiles
+        self.prob_matrix = np.array([[p[e] for e in self.EVENTS] for p in player_profiles])
         self.name_dict = {p['id']: p['name'] for p in player_profiles}
-        self.prob_1b_to_home_on_double = 0.40  
+        self.prob_1b_to_home_on_double = 0.40
         self.prob_2b_to_home_on_single = 0.60
 
-    def _simulate_single_game(self, lineup_indices, rng, innings=9):
-        total_runs = 0
-        current_batter_idx = 0
-        lineup_probs = self.prob_matrix[lineup_indices]
-        
-        for _ in range(innings):
-            outs = 0
-            bases = np.array([0, 0, 0]) 
-            
-            while outs < 3:
-                probs = lineup_probs[current_batter_idx]
-                
-                result = rng.choice(self.event_types, p=probs)
-                
-                if result == 'OUT':
-                    outs += 1
-                elif result == 'HR':
-                    total_runs += np.sum(bases) + 1
-                    bases = np.array([0, 0, 0])
-                elif result == '3B':
-                    total_runs += np.sum(bases)
-                    bases = np.array([0, 0, 1])
-                elif result == '2B':
-                    total_runs += bases[1] + bases[2]
-                    if bases[0] == 1:
-                        if rng.random() < self.prob_1b_to_home_on_double:
-                            total_runs += 1
-                            bases = np.array([0, 1, 0])
-                        else:
-                            bases = np.array([0, 1, 1]) 
-                    else:
-                        bases = np.array([0, 1, 0])
-                elif result == '1B':
-                    total_runs += bases[2]
-                    
-                    if bases[1] == 1:
-                        if rng.random() < self.prob_2b_to_home_on_single:
-                            total_runs += 1           
-                            bases = np.array([1, bases[0], 0]) 
-                        else:
-                            bases = np.array([1, bases[0], 1]) 
-                    else:
-                        bases = np.array([1, bases[0], 0])
-                elif result == 'BB':
-                    if bases[0] == 1 and bases[1] == 1 and bases[2] == 1:
-                        total_runs += 1
-                    elif bases[0] == 1 and bases[1] == 1:
-                        bases = np.array([1, 1, 1])
-                    elif bases[0] == 1:
-                        bases = np.array([1, 1, bases[2]])
-                    else:
-                        bases = np.array([1, bases[1], bases[2]])
-                
-                current_batter_idx = (current_batter_idx + 1) % 9
-                
-        return total_runs
-
-    def evaluate_lineup(self, lineup_indices, num_simulations=1000, seed=42):
+    def simulate_runs(self, lineup_indices, num_simulations, innings=9, seed=42,
+                      batch_size=2_000_000):
         rng = np.random.default_rng(seed)
-        runs = sum(self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations))
-        #runs_std = np.std([self._simulate_single_game(lineup_indices, rng) for _ in range(num_simulations)])/np.sqrt(num_simulations)
-        
-        return runs / num_simulations #, runs_std
+        cum = np.cumsum(self.prob_matrix[np.asarray(lineup_indices)], axis=1)
+        out = np.empty(num_simulations, dtype=np.int32)
+        done = 0
+        while done < num_simulations:
+            g = min(batch_size, num_simulations - done)
+            out[done:done + g] = self._simulate_batch(g, cum, rng, innings)
+            done += g
+        return out
 
+    def _simulate_batch(self, G, cum, rng, innings):
+        total = np.zeros(G, dtype=np.int32)
+        batter = np.zeros(G, dtype=np.int64)
+        b1 = np.zeros(G, dtype=np.int8); b2 = np.zeros(G, dtype=np.int8); b3 = np.zeros(G, dtype=np.int8)
+        for _ in range(innings):
+            outs = np.zeros(G, dtype=np.int8)
+            b1[:] = 0; b2[:] = 0; b3[:] = 0
+            active = outs < 3
+            while active.any():
+                idx = np.where(active)[0]
+                u = rng.random(idx.shape[0])
+                ev = (u[:, None] >= cum[batter[idx]]).sum(axis=1)
+
+                # --- SINGLE_OUT (id 0): +1 出局, 跑者不動 ---
+                m = ev == 0
+                if m.any():
+                    outs[idx[m]] += 1
+
+                # --- DOUBLE_OUT (id 1) ---
+                m = ev == 1
+                if m.any():
+                    g = idx[m]
+                    has1 = b1[g] == 1
+                    g_dp = g[has1]
+                    if g_dp.size:
+                        b1[g_dp] = 0          # 清掉一壘封殺跑者 (二三壘不動)
+                        outs[g_dp] += 2       # 打者也出局
+                    g_sg = g[~has1]
+                    if g_sg.size:
+                        outs[g_sg] += 1       # 一壘無人 -> 退化成普通一出局
+
+                # --- TRIPLE_OUT (id 2): 直接結束半局 ---
+                m = ev == 2
+                if m.any():
+                    outs[idx[m]] = 3
+
+                # --- BB (id 3): 強迫進壘 ---
+                m = ev == 3
+                if m.any():
+                    g = idx[m]; o1, o2, o3 = b1[g].copy(), b2[g].copy(), b3[g].copy()
+                    loaded = (o1 == 1) & (o2 == 1) & (o3 == 1)
+                    total[g[loaded]] += 1
+                    n1 = np.ones_like(o1)
+                    n2 = np.where(o1 == 1, 1, o2); n3 = np.where((o1 == 1) & (o2 == 1), 1, o3)
+                    n2 = np.where(loaded, 1, n2); n3 = np.where(loaded, 1, n3)
+                    b1[g], b2[g], b3[g] = n1, n2, n3
+
+                # --- 1B (id 4) ---
+                m = ev == 4
+                if m.any():
+                    g = idx[m]; o1, o2, o3 = b1[g].copy(), b2[g].copy(), b3[g].copy()
+                    total[g] += o3
+                    has2 = o2 == 1
+                    score2 = has2 & (rng.random(g.shape[0]) < self.prob_2b_to_home_on_single)
+                    total[g[score2]] += 1
+                    b1[g] = 1; b2[g] = o1
+                    b3[g] = np.where(has2 & ~score2, 1, 0).astype(np.int8)
+
+                # --- 2B (id 5) ---
+                m = ev == 5
+                if m.any():
+                    g = idx[m]; o1, o2, o3 = b1[g].copy(), b2[g].copy(), b3[g].copy()
+                    total[g] += (o2 + o3)
+                    has1 = o1 == 1
+                    score1 = has1 & (rng.random(g.shape[0]) < self.prob_1b_to_home_on_double)
+                    total[g[score1]] += 1
+                    b1[g] = 0; b2[g] = 1
+                    b3[g] = np.where(has1 & ~score1, 1, 0).astype(np.int8)
+
+                # --- 3B (id 6) ---
+                m = ev == 6
+                if m.any():
+                    g = idx[m]; total[g] += (b1[g] + b2[g] + b3[g]); b1[g] = 0; b2[g] = 0; b3[g] = 1
+
+                # --- HR (id 7) ---
+                m = ev == 7
+                if m.any():
+                    g = idx[m]; total[g] += (b1[g] + b2[g] + b3[g] + 1); b1[g] = 0; b2[g] = 0; b3[g] = 0
+
+                # 雙殺從兩出局狀態觸發會變 4 出局, 夾回 3。
+                np.clip(outs, 0, 3, out=outs)
+
+                batter[idx] = (batter[idx] + 1) % 9
+                active = outs < 3
+        return total
+
+    def evaluate_lineup(self, lineup_indices, num_simulations=1000, seed=42, return_runs=False):
+        """回傳 (mean, game_std, sem). game_std = 單場得分標準差; sem = 平均數的標準誤。"""
+        runs = self.simulate_runs(lineup_indices, num_simulations, seed=seed)
+        mean = runs.mean()
+        game_std = runs.std(ddof=1)
+        sem = game_std / np.sqrt(num_simulations)
+        if return_runs:
+            return mean, game_std, sem, runs
+        return mean, game_std, sem
 
 
 class BaseballModel:
