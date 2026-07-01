@@ -3,16 +3,21 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from objectives import BaseballSimulator
+from objectives import BaseballSimulator, BaseballModel
 import json
 
-json_path = '/home/qqaazz800624/MCMC_circular_data/results/player_profiles_SF_2024.json'
+team = "BOS"
+year = 2024
+
+json_path = f'/home/qqaazz800624/MCMC_circular_data/results/player_profiles_{team}_{year}.json'
 
 with open(json_path, 'r') as f:
     player_profiles = json.load(f)
 
 
-ANALYTIC_EXPECTATION = 4.2595
+analytic_model = BaseballModel(player_profiles)
+test_lineup = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+ANALYTIC_EXPECTATION = analytic_model.evaluate_lineup(test_lineup, innings=9)
 
 
 def summarize(runs, num_sims):
@@ -24,11 +29,11 @@ def summarize(runs, num_sims):
 
 
 def main():
-    print("Initiate (Benchmark)...")
+    print(f"Initiate (Benchmark) for team {team} in {year}...")
     random_seed = 43
     simulator = BaseballSimulator(player_profiles)
 
-    test_lineup = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+    #test_lineup = test_lineup
 
     # ------------------------------------------------------------------ #
     # 1. Original benchmark: 100,000 games + timing + 1000 MCMC steps estimation #
@@ -106,8 +111,8 @@ def main():
     ax2.grid(True, axis="y", alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig("results/benchmark_convergence.png", dpi=150, bbox_inches="tight")
-    print("\n Plot saved: results/benchmark_convergence.png")
+    plt.savefig(f"results/benchmark_convergence_{team}_{year}.png", dpi=150, bbox_inches="tight")
+    print(f"\n Plot saved: results/benchmark_convergence_{team}_{year}.png")
 
 
 if __name__ == "__main__":

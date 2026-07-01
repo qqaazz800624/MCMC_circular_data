@@ -518,7 +518,7 @@ class BaseballModel:
     # ------------------------------------------------------------------ #
     # Lineup evaluation                                                  #
     # ------------------------------------------------------------------ #
-    def evaluate_lineup_analytically(self, lineup_indices, innings: int = 9) -> float:
+    def evaluate_lineup(self, lineup_indices, innings: int = 9) -> float:
         """
         Expected runs for a full game, following Bukiet eq. (3).
  

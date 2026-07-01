@@ -4,7 +4,9 @@ from objectives import BaseballModel
 
 
 def main():
-    json_path = '/home/qqaazz800624/MCMC_circular_data/results/player_profiles_SF_2024.json'
+    team = "SF"
+    year = 2024
+    json_path = f'/home/qqaazz800624/MCMC_circular_data/results/player_profiles_{team}_{year}.json'
     with open(json_path, 'r') as f:
         player_profiles = json.load(f)
         
@@ -13,7 +15,7 @@ def main():
 
     lineup = [0, 1, 2, 3, 4, 5, 6, 7, 8]  
 
-    runs_lineup = model.evaluate_lineup_analytically(lineup, innings=9)
+    runs_lineup = model.evaluate_lineup(lineup, innings=9)
 
     print("\n" + "="*55)
     print(" BUKIET (1997) EXACT EVALUATION REPORT")
